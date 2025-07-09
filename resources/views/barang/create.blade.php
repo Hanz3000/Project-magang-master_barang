@@ -31,8 +31,6 @@
                 oncopy="return false" oncut="return false" onpaste="return false">
         </div>
 
-
-
         <div class="flex justify-end space-x-2">
             <a href="{{ route('barang.index') }}"
                 class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition">
