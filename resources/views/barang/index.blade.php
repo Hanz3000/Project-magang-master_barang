@@ -19,7 +19,6 @@
             </a>
         </div>
 
-
         <div class="px-6 py-4">
             <!-- Kontrol untuk bulk actions - hanya muncul jika ada item terpilih -->
             <div id="bulk-actions" class="flex items-center justify-between mb-4 p-3 bg-red-50 border border-red-200 rounded-lg hidden">
