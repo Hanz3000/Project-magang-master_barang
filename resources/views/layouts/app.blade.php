@@ -584,6 +584,7 @@
                         </a>
                     </li>
 
+<<<<<<< HEAD
                     <!-- Master Data - Master Pegawai -->
                     <li>
                         <a href="{{ route('pegawai.index') }}"
@@ -625,6 +626,42 @@
                             <span class="whitespace-nowrap">Master Pegawai</span>
                         </a>
                     </div>
+=======
+<!-- Master Data - Master Pegawai -->
+<li>
+    <a href="{{ route('pegawai.index') }}"
+        class="group flex items-center gap-3 px-2 py-3 text-white rounded-lg hover-glow transition-all duration-200 hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-pink-600/30">
+        <div
+            class="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-md group-hover:scale-105 transition-transform duration-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+        </div>
+        <div x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300 delay-100"
+            x-transition:leave="transition ease-in duration-200" class="whitespace-nowrap text-left">
+            <span class="font-medium block">Master Pegawai</span>
+        </div>
+    </a>
+</li>
+
+
+                        <!-- Submenu -->
+                        <div x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-2"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 translate-y-2" class="ml-11 mt-2 space-y-2 text-sm">
+                            <a href="{{ route('barang.index') }}"
+                                class="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-md transition-all duration-200">
+                            </a>
+                            <a href="{{ route('pegawai.index') }}"
+                                class="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-white hover:bg-slate-700/50 rounded-md transition-all duration-200">
+                
+                            </a>
+                        </div>
+>>>>>>> f3b312a8194119d2a0b62e6bcbc72fa0cd92d12f
                     </li>
                 </ul>
             </nav>
