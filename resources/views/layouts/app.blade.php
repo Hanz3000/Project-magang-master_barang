@@ -566,34 +566,42 @@
 
                     <!-- Manajemen Struk -->
 
+<!-- Master Data - Master Barang -->
+<li>
+    <a href="{{ route('barang.index') }}"
+        class="group flex items-center gap-3 px-2 py-3 text-white rounded-lg hover-glow transition-all duration-200 hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-pink-600/30">
+        <div
+            class="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md group-hover:scale-105 transition-transform duration-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+        </div>
+        <div x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300 delay-100"
+            x-transition:leave="transition ease-in duration-200" class="whitespace-nowrap text-left">
+            <span class="font-medium block">Master Barang</span>
+        </div>
+    </a>
+</li>
 
-                    <!-- Master Section -->
-                    <li x-data="{ open: false }">
-                        <button @click="sidebarOpen = true; open = !open"
-                            class="group flex items-center gap-3 px-2 py-3 text-white rounded-lg w-full hover-glow transition-all duration-200 hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-pink-600/30">
-                            <div
-                                class="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-md group-hover:scale-105 transition-transform duration-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h7" />
-                                </svg>
-                            </div>
-                            <div x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300 delay-250"
-                                x-transition:leave="transition ease-in duration-200"
-                                class="flex-1 whitespace-nowrap text-left">
-                                <span class="font-medium block">Master Data</span>
-                                <p class="text-xs text-slate-300">Kelola data master</p>
-                            </div>
-                            <div x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300 delay-300"
-                                x-transition:leave="transition ease-in duration-200">
-                                <svg :class="{ 'rotate-180': open }"
-                                    class="w-4 h-4 text-white transform transition-transform duration-300" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </button>
+        <!-- Master Data - Master Pegawai -->
+        <li>
+            <a href="{{ route('pegawai.index') }}"
+                class="group flex items-center gap-3 px-2 py-3 text-white rounded-lg hover-glow transition-all duration-200 hover:bg-gradient-to-r hover:from-purple-600/30 hover:to-pink-600/30">
+                <div
+                    class="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-md group-hover:scale-105 transition-transform duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h7" />
+                    </svg>
+                </div>
+                <div x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300 delay-100"
+                    x-transition:leave="transition ease-in duration-200" class="whitespace-nowrap text-left">
+                    <span class="font-medium block">Master Pegawai</span>
+                </div>
+            </a>
+        </li>
+
 
                         <!-- Submenu -->
                         <div x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-300"
