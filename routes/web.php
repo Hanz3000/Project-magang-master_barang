@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\MasterBarangController;
 use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\DashboardController;
 
 // ========== AUTH (LOGIN / REGISTER / LOGOUT) ==========
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -23,6 +24,7 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 Route::middleware('auth:admin')->group(function () {
     // Dashboard setelah login
     Route::get('/', [AuthController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // === Master Barang ===
     Route::prefix('barang')->group(function () {

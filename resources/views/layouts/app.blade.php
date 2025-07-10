@@ -580,6 +580,7 @@
                             <div x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300 delay-100"
                                 x-transition:leave="transition ease-in duration-200" class="whitespace-nowrap text-left">
                                 <span class="font-medium block">Master Barang</span>
+                                <p class="text-xs text-slate-300">kelola data barang</p>
                             </div>
                         </a>
                     </li>
@@ -598,6 +599,7 @@
                             <div x-show="sidebarOpen" x-transition:enter="transition ease-out duration-300 delay-100"
                                 x-transition:leave="transition ease-in duration-200" class="whitespace-nowrap text-left">
                                 <span class="font-medium block">Master Pegawai</span>
+                                <p class="text-xs text-slate-300">kelola pegawai</p>
                             </div>
                         </a>
                     </li>
