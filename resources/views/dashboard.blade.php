@@ -30,7 +30,9 @@
                 <div class="text-4xl font-bold text-gray-800">{{ $totalBarang }}</div>
                 <div class="text-sm text-gray-500" id="barangUpdateInfo">
                     @if($lastBarangUpdate)
-                    Diperbarui {{ $lastBarangUpdate->diffForHumans() }}
+                        Diperbarui {{ $lastBarangUpdate->diffForHumans() }}
+                    @else
+                        Belum ada data
                     @endif
                 </div>
             </div>
@@ -49,7 +51,9 @@
                 <div class="text-4xl font-bold text-gray-800">{{ $totalPegawai }}</div>
                 <div class="text-sm text-gray-500" id="pegawaiUpdateInfo">
                     @if($lastPegawaiUpdate)
-                    Diperbarui {{ $lastPegawaiUpdate->diffForHumans() }}
+                        Diperbarui {{ $lastPegawaiUpdate->diffForHumans() }}
+                    @else
+                        Belum ada data
                     @endif
                 </div>
             </div>
@@ -67,17 +71,28 @@
                 <span class="text-xs text-gray-500">Terakhir ditambahkan</span>
             </div>
             <ul class="divide-y divide-gray-100">
-                @foreach ($recentBarang as $barang)
+                @forelse ($recentBarang as $barang)
                 <li class="py-3 flex justify-between items-center">
                     <div>
                         <p class="text-sm font-medium text-gray-800">{{ $barang->nama_barang }}</p>
                         <p class="text-xs text-gray-500">Kode: {{ $barang->kode_barang }}</p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            @if($barang->status === 'masuk')
+                                Ditambahkan {{ $barang->created_at->diffForHumans() }}
+                            @elseif($barang->status === 'keluar')
+                                Dikeluarkan {{ $barang->updated_at->diffForHumans() }}
+                            @else
+                                {{ $barang->created_at->diffForHumans() }}
+                            @endif
+                        </p>
                     </div>
                     <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $barang->jumlah > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                         Stok: {{ $barang->jumlah }}
                     </span>
                 </li>
-                @endforeach
+                @empty
+                <li class="py-3 text-gray-500 text-sm">Tidak ada data barang terbaru.</li>
+                @endforelse
             </ul>
         </div>
 
@@ -88,13 +103,15 @@
                 <span class="text-xs text-gray-500">Terakhir ditambahkan</span>
             </div>
             <ul class="divide-y divide-gray-100">
-                @foreach ($recentPegawai as $pegawai)
+                @forelse ($recentPegawai as $pegawai)
                 <li class="py-3">
                     <p class="text-sm font-medium text-gray-800">{{ $pegawai->nama }}</p>
                     <p class="text-xs text-gray-500">NIP: {{ $pegawai->nip }}</p>
                     <p class="text-xs text-gray-500 mt-1">Bergabung {{ $pegawai->created_at->diffForHumans() }}</p>
                 </li>
-                @endforeach
+                @empty
+                <li class="py-3 text-gray-500 text-sm">Tidak ada data pegawai terbaru.</li>
+                @endforelse
             </ul>
         </div>
     </div>
@@ -103,32 +120,7 @@
 <script>
     function applyFilter() {
         const filterValue = document.getElementById('timeFilter').value;
-
-        // Show loading state
-        document.querySelectorAll('.text-4xl').forEach(el => {
-            el.textContent = '...';
-        });
-
-        // In a real application, you would make an AJAX call here
-        // For demonstration, we'll just show an alert
-        let message = '';
-        switch (filterValue) {
-            case 'today':
-                message = 'Menampilkan data yang diperbarui hari ini';
-                break;
-            case 'week':
-                message = 'Menampilkan data yang diperbarui minggu ini';
-                break;
-            case 'month':
-                message = 'Menampilkan data yang diperbarui bulan ini';
-                break;
-            default:
-                message = 'Menampilkan semua data';
-        }
-
-        alert(message);
-
-
+        window.location.href = `/dashboard/filter/${filterValue}`;
     }
 </script>
 @endsection

@@ -6,6 +6,7 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\MasterBarangController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TransaksiController;
 
 // ========== AUTH (LOGIN / REGISTER / LOGOUT) ==========
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -22,37 +23,37 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 
 // ========== SETELAH LOGIN ADMIN ==========
 Route::middleware('auth:admin')->group(function () {
-    // Dashboard setelah login
+
+    // === Dashboard ===
     Route::get('/', [AuthController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/filter/{time}', [DashboardController::class, 'filter'])->name('dashboard.filter');
 
     // === Master Barang ===
-    Route::prefix('barang')->group(function () {
-        Route::get('/', [MasterBarangController::class, 'index'])->name('barang.index');
-        Route::get('/create', [MasterBarangController::class, 'create'])->name('barang.create');
-        Route::post('/', [MasterBarangController::class, 'store'])->name('barang.store');
-
-        // Bulk delete barang
-        Route::delete('/bulk-delete', [MasterBarangController::class, 'bulkDelete'])->name('barang.bulk-delete');
-
-        // Edit/hapus barang
-        Route::get('/{id}/edit', [MasterBarangController::class, 'edit'])->name('barang.edit');
-        Route::put('/{id}', [MasterBarangController::class, 'update'])->name('barang.update');
-        Route::delete('/{id}', [MasterBarangController::class, 'destroy'])->name('barang.destroy');
+    Route::prefix('barang')->name('barang.')->group(function () {
+        Route::get('/', [MasterBarangController::class, 'index'])->name('index');
+        Route::get('/create', [MasterBarangController::class, 'create'])->name('create');
+        Route::post('/', [MasterBarangController::class, 'store'])->name('store');
+        Route::delete('/bulk-delete', [MasterBarangController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::get('/{id}/edit', [MasterBarangController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [MasterBarangController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MasterBarangController::class, 'destroy'])->name('destroy');
     });
 
     // === Master Pegawai ===
-    Route::prefix('pegawai')->group(function () {
-        Route::get('/', [PegawaiController::class, 'index'])->name('pegawai.index');
-        Route::get('/create', [PegawaiController::class, 'create'])->name('pegawai.create');
-        Route::post('/', [PegawaiController::class, 'store'])->name('pegawai.store');
+    Route::prefix('pegawai')->name('pegawai.')->group(function () {
+        Route::get('/', [PegawaiController::class, 'index'])->name('index');
+        Route::get('/create', [PegawaiController::class, 'create'])->name('create');
+        Route::post('/', [PegawaiController::class, 'store'])->name('store');
+        Route::delete('/bulk-delete', [PegawaiController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::get('/{id}/edit', [PegawaiController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [PegawaiController::class, 'update'])->name('update');
+        Route::delete('/{id}', [PegawaiController::class, 'destroy'])->name('destroy');
+    });
 
-        // Bulk delete pegawai
-        Route::delete('/bulk-delete', [PegawaiController::class, 'bulkDelete'])->name('pegawai.bulk-delete');
-
-        // Edit/hapus pegawai
-        Route::get('/{id}/edit', [PegawaiController::class, 'edit'])->name('pegawai.edit');
-        Route::put('/{id}', [PegawaiController::class, 'update'])->name('pegawai.update');
-        Route::delete('/{id}', [PegawaiController::class, 'destroy'])->name('pegawai.destroy');
+    // === Transaksi (Pemasukan & Pengeluaran) ===
+    Route::prefix('transaksi')->name('transaksi.')->group(function () {
+        Route::get('/', [TransaksiController::class, 'index'])->name('index');
+        Route::get('/filter/{time}', [TransaksiController::class, 'filter'])->name('filter');
     });
 });
