@@ -27,7 +27,8 @@ Route::middleware('auth:admin')->group(function () {
     // === Dashboard ===
     Route::get('/', [AuthController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/filter/{time}', [DashboardController::class, 'filter'])->name('dashboard.filter');
+    Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
+    Route::get('/dashboard/filter/month', [DashboardController::class, 'filterMonth'])->name('dashboard.filterMonth');
 
     // === Master Barang ===
     Route::prefix('barang')->name('barang.')->group(function () {

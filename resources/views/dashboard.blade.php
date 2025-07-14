@@ -7,15 +7,17 @@
 
         <!-- Time Filter -->
         <div class="flex space-x-2">
-            <select id="timeFilter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                <option value="today">Hari Ini</option>
-                <option value="week">Minggu Ini</option>
-                <option value="month">Bulan Ini</option>
-                <option value="all">Semua Data</option>
-            </select>
-            <button onclick="applyFilter()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                Filter
-            </button>
+            <form action="{{ route('dashboard.filter') }}" method="GET" class="flex space-x-2">
+                <select name="time" id="timeFilter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <option value="today" {{ (isset($time) && $time == 'today') ? 'selected' : '' }}>Hari Ini</option>
+                    <option value="week" {{ (isset($time) && $time == 'week') ? 'selected' : '' }}>Minggu Ini</option>
+                    <option value="month" {{ (isset($time) && $time == 'month') ? 'selected' : '' }}>Bulan Ini</option>
+                    <option value="all" {{ (isset($time) && $time == 'all') ? 'selected' : '' }}>Semua Data</option>
+                </select>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Filter
+                </button>
+            </form>
         </div>
     </div>
 
@@ -28,7 +30,7 @@
             </div>
             <div class="flex items-end justify-between">
                 <div class="text-4xl font-bold text-gray-800">{{ $totalBarang }}</div>
-                <div class="text-sm text-gray-500" id="barangUpdateInfo">
+                <div class="text-sm text-gray-500">
                     @if($lastBarangUpdate)
                         Diperbarui {{ $lastBarangUpdate->diffForHumans() }}
                     @else
@@ -49,7 +51,7 @@
             </div>
             <div class="flex items-end justify-between">
                 <div class="text-4xl font-bold text-gray-800">{{ $totalPegawai }}</div>
-                <div class="text-sm text-gray-500" id="pegawaiUpdateInfo">
+                <div class="text-sm text-gray-500">
                     @if($lastPegawaiUpdate)
                         Diperbarui {{ $lastPegawaiUpdate->diffForHumans() }}
                     @else
@@ -116,11 +118,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    function applyFilter() {
-        const filterValue = document.getElementById('timeFilter').value;
-        window.location.href = `/dashboard/filter/${filterValue}`;
-    }
-</script>
 @endsection

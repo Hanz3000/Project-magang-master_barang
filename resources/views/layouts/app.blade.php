@@ -728,116 +728,112 @@
 
     <!-- Scripts -->
     @stack('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            try {
-                // Fungsi untuk notifikasi
-                function showActionNotification(action, message) {
-                    const settings = {
-                        create: {
-                            icon: 'success',
-                            title: 'Data Berhasil Ditambahkan',
-                            color: '#10B981'
-                        },
-                        update: {
-                            icon: 'info',
-                            title: 'Data Berhasil Diperbarui',
-                            color: '#3B82F6'
-                        },
-                        delete: {
-                            icon: 'warning',
-                            title: 'Data Berhasil Dihapus',
-                            color: '#EF4444'
-                        },
-                        error: {
-                            icon: 'error',
-                            title: 'Terjadi Kesalahan',
-                            color: '#DC2626'
-                        }
-                    };
-
-                    const config = settings[action] || {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            // Fungsi untuk notifikasi
+            function showActionNotification(action, message) {
+                const settings = {
+                    create: {
+                        icon: 'success',
+                        title: 'Data Berhasil Ditambahkan',
+                        color: '#10B981'
+                    },
+                    update: {
                         icon: 'info',
-                        title: 'Notifikasi'
-                    };
+                        title: 'Data Berhasil Diperbarui',
+                        color: '#3B82F6'
+                    },
+                    delete: {
+                        icon: 'warning',
+                        title: 'Data Berhasil Dihapus',
+                        color: '#EF4444'
+                    },
+                    error: {
+                        icon: 'error',
+                        title: 'Terjadi Kesalahan',
+                        color: '#DC2626'
+                    }
+                };
 
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true,
-                        background: 'white',
-                        iconColor: config.color,
-                        color: '#1F2937',
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer);
-                            toast.addEventListener('mouseleave', Swal.resumeTimer);
-                        }
-                    });
+                const config = settings[action] || {
+                    icon: 'info',
+                    title: 'Notifikasi'
+                };
 
-                    Toast.fire({
-                        icon: config.icon,
-                        title: config.title,
-                        text: message
-                    });
-                }
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: 'white',
+                    iconColor: config.color,
+                    color: '#1F2937',
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
 
-                // Debug session
-                console.log("Checking for notifications...");
+                Toast.fire({
+                    icon: config.icon,
+                    title: config.title,
+                    text: message
+                });
+            }
 
-                // Handle notifications
-                @if(session('created'))
+            // Debug session
+            console.log("Checking for notifications...");
+
+            // Handle notifications
+            @if(session('created'))
                 console.log("Found created notification");
-                showActionNotification('create', '{{ session('
-                    created ') }}');
-                @endif
+                showActionNotification('create', '{{ session('created') }}');
+            @endif
 
-                @if(session('updated'))
+            @if(session('updated'))
                 console.log("Found updated notification");
-                showActionNotification('update', '{{ session('
-                    updated ') }}');
-                @endif
+                showActionNotification('update', '{{ session('updated') }}');
+            @endif
 
-                @if(session('deleted'))
+            @if(session('deleted'))
                 console.log("Found deleted notification");
-                showActionNotification('delete', '{{ session('
-                    deleted ') }}');
-                @endif
+                showActionNotification('delete', '{{ session('deleted') }}');
+            @endif
 
-                @if(session('error'))
+            @if(session('error'))
                 console.log("Found error notification");
-                showActionNotification('error', '{{ session('
-                    error ') }}');
-                @endif
+                showActionNotification('error', '{{ session('error') }}');
+            @endif
 
-            } catch (error) {
-                console.error("Notification error:", error);
+        } catch (error) {
+            console.error("Notification error:", error);
+        }
+    });
+
+    // Fungsi konfirmasi delete
+    function confirmDelete(event, itemName = 'data') {
+        event.preventDefault();
+        const form = event.target.closest('form');
+
+        Swal.fire({
+            title: `Hapus ${itemName}?`,
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            background: 'white'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
             }
         });
-
-        // Fungsi konfirmasi delete
-        function confirmDelete(event, itemName = 'data') {
-            event.preventDefault();
-            const form = event.target.closest('form');
-
-            Swal.fire({
-                title: `Hapus ${itemName}?`,
-                text: "Data yang dihapus tidak dapat dikembalikan!",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#EF4444',
-                cancelButtonColor: '#6B7280',
-                confirmButtonText: 'Ya, Hapus!',
-                cancelButtonText: 'Batal',
-                background: 'white'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        }
-    </script>
+    }
+</script>
 </body>
 
 </html>

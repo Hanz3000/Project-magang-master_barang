@@ -13,15 +13,13 @@ class DashboardController extends Controller
     {
         $totalBarang = Barang::count();
         $totalPegawai = Pegawai::count();
-
         $recentBarang = Barang::latest()->take(5)->get();
         $recentPegawai = Pegawai::latest()->take(5)->get();
 
-        $lastBarang = Barang::latest('updated_at')->first();
-        $lastPegawai = Pegawai::latest('updated_at')->first();
+        $lastBarangUpdate = Barang::latest('updated_at')->first()->updated_at ?? null;
+        $lastPegawaiUpdate = Pegawai::latest('updated_at')->first()->updated_at ?? null;
 
-        $lastBarangUpdate = $lastBarang ? $lastBarang->updated_at : null;
-        $lastPegawaiUpdate = $lastPegawai ? $lastPegawai->updated_at : null;
+        $time = 'all'; // default saat pertama buka dashboard
 
         return view('dashboard', compact(
             'totalBarang',
@@ -29,32 +27,29 @@ class DashboardController extends Controller
             'recentBarang',
             'recentPegawai',
             'lastBarangUpdate',
-            'lastPegawaiUpdate'
+            'lastPegawaiUpdate',
+            'time'
         ));
     }
 
-    public function filter($time)
+    public function filter(Request $request)
     {
+        $time = $request->query('time', 'all'); // default ke 'all' jika tidak ada
+
         $queryBarang = Barang::query();
         $queryPegawai = Pegawai::query();
 
-        // Filter berdasarkan waktu
-        if ($time === 'today') {
+        if ($time == 'today') {
             $queryBarang->whereDate('updated_at', Carbon::today());
             $queryPegawai->whereDate('updated_at', Carbon::today());
-        } elseif ($time === 'week') {
+        } elseif ($time == 'week') {
             $queryBarang->whereBetween('updated_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
             $queryPegawai->whereBetween('updated_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-        } elseif ($time === 'month') {
+        } elseif ($time == 'month') {
             $queryBarang->whereMonth('updated_at', Carbon::now()->month);
             $queryPegawai->whereMonth('updated_at', Carbon::now()->month);
         }
-        // Jika 'all', tidak ada filter tambahan
-
-        // Filter jenis transaksi jika request memiliki parameter 'jenis'
-        if (request()->has('jenis') && request()->jenis != '') {
-            $queryBarang->where('status', request()->jenis);
-        }
+        // Jika 'all' tidak ada filter tambahan
 
         $totalBarang = $queryBarang->count();
         $totalPegawai = $queryPegawai->count();
@@ -62,11 +57,8 @@ class DashboardController extends Controller
         $recentBarang = $queryBarang->latest()->take(5)->get();
         $recentPegawai = $queryPegawai->latest()->take(5)->get();
 
-        $lastBarang = $queryBarang->latest('updated_at')->first();
-        $lastPegawai = $queryPegawai->latest('updated_at')->first();
-
-        $lastBarangUpdate = $lastBarang ? $lastBarang->updated_at : null;
-        $lastPegawaiUpdate = $lastPegawai ? $lastPegawai->updated_at : null;
+        $lastBarangUpdate = $queryBarang->latest('updated_at')->first()->updated_at ?? null;
+        $lastPegawaiUpdate = $queryPegawai->latest('updated_at')->first()->updated_at ?? null;
 
         return view('dashboard', compact(
             'totalBarang',
@@ -74,7 +66,38 @@ class DashboardController extends Controller
             'recentBarang',
             'recentPegawai',
             'lastBarangUpdate',
-            'lastPegawaiUpdate'
+            'lastPegawaiUpdate',
+            'time'
+        ));
+    }
+
+    public function filterMonth()
+    {
+        $time = 'month';
+
+        $queryBarang = Barang::query();
+        $queryPegawai = Pegawai::query();
+
+        $queryBarang->whereMonth('updated_at', Carbon::now()->month);
+        $queryPegawai->whereMonth('updated_at', Carbon::now()->month);
+
+        $totalBarang = $queryBarang->count();
+        $totalPegawai = $queryPegawai->count();
+
+        $recentBarang = $queryBarang->latest()->take(5)->get();
+        $recentPegawai = $queryPegawai->latest()->take(5)->get();
+
+        $lastBarangUpdate = $queryBarang->latest('updated_at')->first()->updated_at ?? null;
+        $lastPegawaiUpdate = $queryPegawai->latest('updated_at')->first()->updated_at ?? null;
+
+        return view('dashboard', compact(
+            'totalBarang',
+            'totalPegawai',
+            'recentBarang',
+            'recentPegawai',
+            'lastBarangUpdate',
+            'lastPegawaiUpdate',
+            'time'
         ));
     }
 }
