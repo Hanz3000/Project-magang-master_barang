@@ -9,7 +9,7 @@ class Pegawai extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nama', 'nip'];
+    protected $fillable = ['nama', 'nip', 'divisi_id'];
 
     /**
      * Relasi: Pegawai memiliki banyak Pengeluaran
@@ -18,4 +18,10 @@ class Pegawai extends Model
     {
         return $this->hasMany(Pengeluaran::class);
     }
+
+    public function division()
+{
+    return $this->belongsTo(Division::class, 'divisi_id');
+}
+
 }

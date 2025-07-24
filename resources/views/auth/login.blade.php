@@ -233,8 +233,10 @@
         </form>
 
         <div class="text-center text-sm mt-6 animate-fadeIn" style="animation-delay: 1s;">
-            <span class="text-slate-600">Belum punya akun?</span>
-            <a href="{{ route('register') }}" class="text-primary-600 font-medium hover:underline ml-1">Daftar</a>
+            <p class="mt-4 text-sm text-center text-gray-500">
+    Akun hanya diberikan oleh perusaahan. Silakan hubungi bagian kepegawaian terkait.
+</p>
+
         </div>
     </div>
 

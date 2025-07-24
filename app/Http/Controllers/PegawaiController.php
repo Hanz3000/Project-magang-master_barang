@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pegawai;
+use App\Models\Division;
+use App\Models\User; 
 
 class PegawaiController extends Controller
 {
@@ -27,64 +29,75 @@ class PegawaiController extends Controller
 
 
     public function create()
-    {
-        return view('pegawai.create');
-    }
-
-    public function store(Request $request)
 {
-    // Validasi input sebelum simpan
-    $request->validate([
+    $divisions = \App\Models\Division::all(); // Kirim data divisi ke view
+    return view('pegawai.create', compact('divisions'));
+}   
+
+public function store(Request $request)
+{
+    $validated = $request->validate([
         'nama' => 'required|string|max:255',
-        'nip' => 'required|numeric|digits_between:5,20|unique:pegawais,nip',
-    ], [
-        'nip.required' => 'NIP wajib diisi.',
-        'nip.numeric' => 'NIP harus berupa angka.',
-        'nip.digits_between' => 'NIP harus terdiri dari minimal 5 hingga maksimal 20 digit.',
-        'nip.unique' => 'NIP sudah digunakan.',
+        'nip' => 'required|string|max:20|unique:pegawais,nip',
+        'divisi' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users,email',
+        'password' => 'required|string|min:6|confirmed',
     ]);
 
-    Pegawai::create($request->only('nama', 'nip'));
+    // Cari atau buat divisi baru
+    $division = Division::firstOrCreate(
+        ['name' => $validated['divisi']],
+        ['created_at' => now(), 'updated_at' => now()]
+    );
 
-    if ($request->action === 'save_and_continue') {
-        return redirect()
-            ->route('pegawai.create')
-            ->with('created', 'Data pegawai berhasil ditambahkan. Silakan tambah data baru.');
-    }
+    // Simpan ke tabel pegawais dengan divisi_id yang benar
+    $pegawai = Pegawai::create([
+        'nama' => $validated['nama'],
+        'nip' => $validated['nip'],
+        'divisi_id' => $division->id, // Pastikan menggunakan divisi_id
+        'created_at' => now(),
+        'updated_at' => now()
+    ]);
 
-    return redirect()
-        ->route('pegawai.index')
-        ->with('created', 'Data pegawai berhasil ditambahkan.');
-}
+    // Simpan ke tabel users
+    User::create([
+        'name' => $validated['nama'],
+        'email' => $validated['email'],
+        'password' => bcrypt($validated['password']),
+    ]);
+
+    return redirect()->route('pegawai.index')->with('success', 'Pegawai berhasil ditambahkan.');
+}   
+
 
     public function edit(Pegawai $pegawai)
-    {
-        return view('pegawai.edit', compact('pegawai'));
-    }
+{
+    $divisions = \App\Models\Division::all();
+    return view('pegawai.edit', compact('pegawai', 'divisions'));
+}
 
-   public function update(Request $request, Pegawai $pegawai)
+
+public function update(Request $request, Pegawai $pegawai)
 {
     $request->validate([
         'nama' => 'required|string|max:255',
-        'nip' => 'required|numeric|digits_between:5,20|unique:pegawais,nip,' . $pegawai->id,
+        'nip' => 'required|string|max:20|unique:pegawais,nip,' . $pegawai->id,
+        'divisi' => 'required|string',
     ], [
         'nip.required' => 'NIP wajib diisi.',
-        'nip.numeric' => 'NIP harus berupa angka.',
-        'nip.digits_between' => 'NIP harus terdiri dari minimal 5 hingga maksimal 20 digit.',
         'nip.unique' => 'NIP sudah digunakan.',
     ]);
 
-    // Simpan perubahan ke database
     $pegawai->update([
         'nama' => $request->nama,
         'nip' => $request->nip,
+        'divisi' => $request->divisi,
     ]);
 
     return redirect()
         ->route('pegawai.index')
         ->with('updated', 'Data pegawai berhasil diperbarui.');
 }
-
 
     public function destroy(Pegawai $pegawai)
     {
