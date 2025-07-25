@@ -6,7 +6,7 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\MasterBarangController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\DivisiController;
 
 // ========== AUTH (LOGIN / REGISTER / LOGOUT) ==========
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -45,14 +45,16 @@ Route::middleware('auth:admin')->group(function () {
         Route::get('/create', [PegawaiController::class, 'create'])->name('create');
         Route::post('/', [PegawaiController::class, 'store'])->name('store');
         Route::delete('/bulk-delete', [PegawaiController::class, 'bulkDelete'])->name('bulk-delete');
-        Route::get('/{id}/edit', [PegawaiController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [PegawaiController::class, 'update'])->name('update');
-        Route::delete('/{id}', [PegawaiController::class, 'destroy'])->name('destroy');
+        Route::get('/{pegawai}/edit', [PegawaiController::class, 'edit'])->name('edit');
+        Route::put('/{pegawai}', [PegawaiController::class, 'update'])->name('update');
+        Route::delete('/{pegawai}', [PegawaiController::class, 'destroy'])->name('destroy');
     });
 
-    // === Transaksi (Pemasukan & Pengeluaran) ===
-    Route::prefix('transaksi')->name('transaksi.')->group(function () {
-        Route::get('/', [TransaksiController::class, 'index'])->name('index');
-        Route::get('/filter/{time}', [TransaksiController::class, 'filter'])->name('filter');
-    });
+
+
+Route::post('/divisions', [DivisiController::class, 'store'])->name('divisions.store');
+Route::put('/divisions/{division}', [DivisiController::class, 'update'])->name('divisions.update');
+Route::delete('/divisions/{division}', [DivisiController::class, 'destroy'])->name('divisions.destroy');
+
+  
 });

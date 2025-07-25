@@ -9,19 +9,20 @@ class Pegawai extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nama', 'nip', 'divisi_id'];
+    // ✅ Tambahkan 'user_id' di sini agar bisa disimpan
+    protected $fillable = ['nama', 'nip', 'divisi_id', 'user_id'];
 
     /**
-     * Relasi: Pegawai memiliki banyak Pengeluaran
+     * Relasi: Pegawai milik satu divisi
      */
-    public function pengeluarans()
+    public function division()
     {
-        return $this->hasMany(Pengeluaran::class);
+        return $this->belongsTo(Division::class, 'divisi_id');
     }
 
-    public function division()
+    public function user()
 {
-    return $this->belongsTo(Division::class, 'divisi_id');
+    return $this->belongsTo(User::class);
 }
 
 }

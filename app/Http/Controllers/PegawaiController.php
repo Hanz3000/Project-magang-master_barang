@@ -44,30 +44,29 @@ public function store(Request $request)
         'password' => 'required|string|min:6|confirmed',
     ]);
 
-    // Cari atau buat divisi baru
-    $division = Division::firstOrCreate(
-        ['name' => $validated['divisi']],
-        ['created_at' => now(), 'updated_at' => now()]
-    );
-
-    // Simpan ke tabel pegawais dengan divisi_id yang benar
-    $pegawai = Pegawai::create([
-        'nama' => $validated['nama'],
-        'nip' => $validated['nip'],
-        'divisi_id' => $division->id, // Pastikan menggunakan divisi_id
-        'created_at' => now(),
-        'updated_at' => now()
-    ]);
-
-    // Simpan ke tabel users
-    User::create([
+    // Buat user terlebih dahulu
+    $user = User::create([
         'name' => $validated['nama'],
         'email' => $validated['email'],
         'password' => bcrypt($validated['password']),
     ]);
 
+    // Cari atau buat divisi
+    $division = Division::firstOrCreate(
+        ['name' => $validated['divisi']],
+        ['created_at' => now(), 'updated_at' => now()]
+    );
+
+    // Simpan pegawai dengan user_id
+    Pegawai::create([
+        'nama' => $validated['nama'],
+        'nip' => $validated['nip'],
+        'divisi_id' => $division->id,
+        'user_id' => $user->id,
+    ]);
+
     return redirect()->route('pegawai.index')->with('success', 'Pegawai berhasil ditambahkan.');
-}   
+}
 
 
     public function edit(Pegawai $pegawai)
@@ -82,43 +81,63 @@ public function update(Request $request, Pegawai $pegawai)
     $request->validate([
         'nama' => 'required|string|max:255',
         'nip' => 'required|string|max:20|unique:pegawais,nip,' . $pegawai->id,
-        'divisi' => 'required|string',
-    ], [
-        'nip.required' => 'NIP wajib diisi.',
-        'nip.unique' => 'NIP sudah digunakan.',
+        'divisi' => 'required|string|max:255',
     ]);
+
+    $division = Division::firstOrCreate(
+        ['name' => $request->divisi],
+        ['created_at' => now(), 'updated_at' => now()]
+    );
 
     $pegawai->update([
         'nama' => $request->nama,
         'nip' => $request->nip,
-        'divisi' => $request->divisi,
+        'divisi_id' => $division->id,
     ]);
+
+    return redirect()->route('pegawai.index')->with('updated', 'Data pegawai berhasil diperbarui.');
+}
+
+public function destroy(Pegawai $pegawai)
+{
+    // Hapus user yang terkait (jika ada)
+    if ($pegawai->user) {
+        $pegawai->user->delete();
+    }
+
+    // Hapus pegawai
+    $pegawai->delete();
 
     return redirect()
         ->route('pegawai.index')
-        ->with('updated', 'Data pegawai berhasil diperbarui.');
+        ->with('deleted', 'Pegawai berhasil dihapus.');
+}
+    public function bulkDelete(Request $request)
+{
+    $ids = explode(',', $request->ids);
+
+    if (!empty($ids)) {
+        // Ambil semua pegawai yang dipilih
+        $pegawais = Pegawai::whereIn('id', $ids)->get();
+
+        foreach ($pegawais as $pegawai) {
+            // Hapus user yang terkait jika ada
+            if ($pegawai->user) {
+                $pegawai->user->delete();
+            }
+
+            // Hapus pegawai
+            $pegawai->delete();
+        }
+
+        return redirect()
+            ->route('pegawai.index')
+            ->with('deleted', 'Pegawai terpilih berhasil dihapus.');
+    }
+
+    return redirect()
+        ->route('pegawai.index')
+        ->with('created', 'Tidak ada pegawai yang dipilih.');
 }
 
-    public function destroy(Pegawai $pegawai)
-    {
-        $pegawai->delete();
-
-        return redirect()
-            ->route('pegawai.index')
-            ->with('deleted', 'Pegawai berhasil dihapus.');
-    }
-
-    public function bulkDelete(Request $request)
-    {
-        $ids = explode(',', $request->ids);
-        if (!empty($ids)) {
-            \App\Models\Pegawai::whereIn('id', $ids)->delete();
-            return redirect()
-                ->route('pegawai.index')
-                ->with('deleted', 'Pegawai terpilih berhasil dihapus.');
-        }
-        return redirect()
-            ->route('pegawai.index')
-            ->with('created', 'Tidak ada pegawai yang dipilih.');
-    }
 }

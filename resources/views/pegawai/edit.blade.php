@@ -8,13 +8,7 @@
         </svg>
         Edit Pegawai
     </h2>
-@if ($errors->has('nip'))
-    <div class="text-red-600 text-sm mt-1">
-        {{ $errors->first('nip') }}
-    </div>
-@endif
 
-    {{-- Error Validasi --}}
     @if ($errors->any())
         <div class="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded mb-6">
             <ul class="list-disc list-inside text-sm">
@@ -25,7 +19,7 @@
         </div>
     @endif
 
-    <form action="{{ route('pegawai.update', $pegawai->id) }}" method="POST" class="space-y-4">
+    <form action="{{ route('pegawai.update', $pegawai) }}" method="POST" class="space-y-4">
         @csrf
         @method('PUT')
 
@@ -33,16 +27,28 @@
             <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Pegawai</label>
             <input type="text" name="nama" id="nama"
                    value="{{ old('nama', $pegawai->nama) }}"
-                   placeholder="Contoh: Andi Santoso"
                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
 
         <div>
             <label for="nip" class="block text-sm font-medium text-gray-700 mb-1">NIP</label>
-            <input type="number" name="nip" id="nip"
+            <input type="text" name="nip" id="nip"
                    value="{{ old('nip', $pegawai->nip) }}"
-                   placeholder="Masukkan NIP"
                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" required>
+        </div>
+
+        <!-- Tambahkan field divisi -->
+        <div>
+            <label for="divisi" class="block text-sm font-medium text-gray-700 mb-1">Divisi</label>
+            <select name="divisi" id="divisi" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500" required>
+                <option value="">Pilih Divisi</option>
+                @foreach($divisions as $division)
+                    <option value="{{ $division->name }}" {{ old('divisi', $pegawai->division->name ?? '') == $division->name ? 'selected' : '' }}>
+                        {{ $division->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
 
         <div class="flex justify-end gap-2 pt-4">

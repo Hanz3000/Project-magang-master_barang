@@ -100,7 +100,7 @@
                                         </svg>
                                     </a>
                                     <button type="button"
-                                        onclick="openDeleteModal('{{ route('pegawai.destroy', $pegawai->id) }}', '{{ $pegawai->nama }}')"
+                                        onclick="openDeleteModal('{{ route('pegawai.destroy', $pegawai->id) }}', '{{ $pegawai->nama }}', '{{ $pegawai->id }}')"
                                         class="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full transition-colors duration-150"
                                         title="Hapus pegawai {{ $pegawai->nama }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -147,9 +147,9 @@
                         </svg>
                     </div>
                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">Konfirmasi Penghapusan</h3>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi Penghapusan</h3>
                         <div class="mt-2">
-                            <p id="deleteItemText" class="text-sm text-gray-500">Apakah Anda yakin ingin menghapus pegawai ini?</p>
+                            <p id="deleteItemText" class="text-sm text-gray-500"></p>
                         </div>
                     </div>
                 </div>
@@ -158,6 +158,7 @@
                 <form id="deleteForm" method="POST">
                     @csrf
                     @method('DELETE')
+                    <input type="hidden" name="id" id="deleteIdInput">
                     <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
                         Hapus
                     </button>
@@ -260,16 +261,15 @@
     });
 
     // Delete modal functions
-    function openDeleteModal(formAction, namaPegawai = '') {
+    function openDeleteModal(url, namaPegawai, id) {
         const form = document.getElementById('deleteForm');
         const textElement = document.getElementById('deleteItemText');
+        const idInput = document.getElementById('deleteIdInput');
         const modal = document.getElementById('deleteModal');
 
-        form.action = formAction;
-        textElement.textContent = namaPegawai ?
-            `Apakah Anda yakin ingin menghapus pegawai "${namaPegawai}" dari daftar?` :
-            'Apakah Anda yakin ingin menghapus pegawai ini dari daftar?';
-
+        form.action = url;
+        idInput.value = id;
+        textElement.textContent = `Apakah Anda yakin ingin menghapus pegawai "${namaPegawai}"?`;
         modal.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
     }
