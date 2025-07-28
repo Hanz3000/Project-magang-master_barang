@@ -64,11 +64,12 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <div class="flex items-center space-x-3">
-                                    <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                    <span>ID</span>
-                                </div>
-                            </th>
+    <div class="flex items-center space-x-3">
+        <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+        <span>No</span>
+    </div>
+</th>
+
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAMA PEGAWAI</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIP</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DIVISI</th>
@@ -82,7 +83,7 @@
                                 <div class="flex items-center space-x-3">
                                     <input type="checkbox" name="ids[]" value="{{ $pegawai->id }}"
                                         class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded row-checkbox">
-                                    <span>{{ $pegawai->id }}</span>
+                                    <span>{{ $loop->iteration }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $pegawai->nama }}</td>
