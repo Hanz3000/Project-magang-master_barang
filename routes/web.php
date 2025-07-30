@@ -50,11 +50,8 @@ Route::middleware('auth:admin')->group(function () {
         Route::delete('/{pegawai}', [PegawaiController::class, 'destroy'])->name('destroy');
     });
 
-
-
-Route::post('/divisions', [DivisiController::class, 'store'])->name('divisions.store');
-Route::put('/divisions/{division}', [DivisiController::class, 'update'])->name('divisions.update');
-Route::delete('/divisions/{division}', [DivisiController::class, 'destroy'])->name('divisions.destroy');
-
-  
+    // === Divisi ===   
+    Route::post('/divisions', [DivisiController::class, 'store'])->name('divisions.store');
+    Route::put('/divisions/{division}', [DivisiController::class, 'update'])->name('divisions.update');
+    Route::delete('/divisions/{division}', [DivisiController::class, 'destroy'])->name('divisions.destroy');
 });
