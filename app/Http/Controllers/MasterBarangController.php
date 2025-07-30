@@ -79,7 +79,7 @@ class MasterBarangController extends Controller
     {
         $request->validate([
             'nama_barang' => 'required|string|max:255|unique:master_barangs,nama_barang,' . $id,
-            'jumlah' => 'required|integer|min:1',
+            
         ]);
 
         $barang = Barang::findOrFail($id);
@@ -101,7 +101,7 @@ class MasterBarangController extends Controller
         $barang->update([
             'nama_barang' => $request->nama_barang,
             'kode_barang' => $kodeBarang,
-            'jumlah' => $request->jumlah,
+           
         ]);
 
         return redirect()->route('barang.index')->with('updated', 'Barang berhasil diperbarui dengan kode baru.');
