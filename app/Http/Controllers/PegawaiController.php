@@ -11,20 +11,19 @@ class PegawaiController extends Controller
 {
     public function index(Request $request)
 {
-    $query = Pegawai::query();
+    $query = $request->input('q');
+    $pegawais = Pegawai::query();
 
-    if ($request->filled('q')) {
-        $q = $request->q;
-        $query->where(function ($sub) use ($q) {
-            $sub->where('nama', 'like', "%$q%")
-                ->orWhere('nip', 'like', "%$q%");
+    if ($query) {
+        $pegawais->where(function ($q) use ($query) {
+            $q->whereRaw('LOWER(nama) LIKE ?', ['%' . strtolower($query) . '%'])
+              ->orWhereRaw('LOWER(nip) LIKE ?', ['%' . strtolower($query) . '%']);
         });
     }
 
-    // Urutkan berdasarkan waktu update terbaru
-    $pegawais = $query->orderBy('updated_at', 'desc')->get();
-
-    return view('pegawai.index', compact('pegawais'));
+    return view('pegawai.index', [
+        'pegawais' => $pegawais->paginate(10),
+    ]);
 }
 
 

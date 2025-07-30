@@ -38,6 +38,7 @@
                 <form method="GET" action="{{ route('barang.index') }}" class="flex items-center space-x-2">
                     <input
                         type="text"
+                        id="search-input" 
                         name="q"
                         value="{{ request('q') }}"
                         placeholder="Cari nama barang..."
@@ -242,6 +243,50 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout); // Hapus timeout sebelumnya
+            searchTimeout = setTimeout(() => {
+                const query = searchInput.value.trim();
+                const url = new URL(window.location.href);
+
+                if (query) {
+                    url.searchParams.set('q', query); // Tambahkan parameter pencarian
+                } else {
+                    url.searchParams.delete('q'); // Hapus parameter jika kosong
+                }
+
+                // Perbarui URL tanpa memuat ulang halaman
+                history.replaceState(null, '', url.toString());
+
+                // Kirim permintaan pencarian menggunakan AJAX
+                fetch(url.toString(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Perbarui tabel hasil pencarian
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTable = doc.querySelector('table');
+                    const currentTable = document.querySelector('table');
+
+                    if (newTable && currentTable) {
+                        currentTable.innerHTML = newTable.innerHTML;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }, 500); // Tunggu 500ms sebelum mengirim permintaan
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
