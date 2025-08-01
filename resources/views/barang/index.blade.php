@@ -392,8 +392,6 @@
         document.body.classList.add('overflow-hidden');
     }
 
-
-
     function closeBulkDeleteModal() {
         document.getElementById('bulkDeleteModal').classList.add('hidden');
         document.body.classList.remove('overflow-hidden');

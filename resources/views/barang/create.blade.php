@@ -27,8 +27,7 @@
             <input type="text" name="nama_barang" id="nama_barang"
                 class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:border-blue-400"
                 placeholder="Contoh: Buku Tulis"
-                value="{{ old('nama_barang') }}" required
-                oncopy="return false" oncut="return false" onpaste="return false">
+                value="{{ old('nama_barang') }}" required>
         </div>
 
         <div class="flex justify-end space-x-2">
