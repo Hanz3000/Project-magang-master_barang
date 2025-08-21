@@ -39,7 +39,7 @@ class MasterBarangController extends Controller
     public function store(Request $request)
 {
     $request->validate([
-        'nama_barang' => 'required|string|max:255|unique:master_barangs,nama_barang',
+        'nama_barang' => 'required|string|max:255|unique:master_barang,nama_barang',
     ]);
 
     // Generate kode unik
@@ -80,7 +80,7 @@ class MasterBarangController extends Controller
     public function update(Request $request, string $id)
 {
     $request->validate([
-        'nama_barang' => 'required|string|max:255|unique:master_barangs,nama_barang,' . $id,
+        'nama_barang' => 'required|string|max:255|unique:master_barang,nama_barang,' . $id,
     ]);
 
     $barang = Barang::findOrFail($id);
