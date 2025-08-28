@@ -36,11 +36,19 @@ class DivisiController extends Controller
         ]);
     }
 
-    public function destroy(Division $division)
+        public function destroy(Division $division)
     {
+        // Cek apakah divisi masih digunakan oleh pegawai
+        if ($division->pegawais()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => "Divisi '{$division->name}' tidak dapat dihapus karena sedang digunakan oleh pegawai."
+            ], 422); // Unprocessable Entity
+        }
+
         $divisionName = $division->name;
         $division->delete();
-        
+
         return response()->json([
             'success' => true,
             'divisiName' => $divisionName
