@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Barang;
+use Illuminate\Support\Facades\DB;
 
 class MasterBarangController extends Controller
 {
@@ -110,13 +111,54 @@ class MasterBarangController extends Controller
     return redirect()->route('barang.index')->with('updated', 'Barang berhasil diperbarui dengan kode baru.');
 }
 
-    public function destroy(string $id)
-    {
-        $barang = Barang::findOrFail($id);
+            public function destroy(string $id)
+{
+    $barang = Barang::findOrFail($id);
+
+    try {
+        $usedInStruk = false;
+        $usedInPengeluaran = false;
+
+        // ✅ Cek di struks (kolom 'items' ada)
+        if (\Schema::hasColumn('struks', 'items')) {
+            $usedInStruk = DB::table('struks')
+                ->whereRaw("items::text LIKE ?", ['%"' . $barang->kode_barang . '"%'])
+                ->exists();
+        }
+
+        // ✅ Cek di pengeluarans — hanya jika kolom 'items' ada
+        if (\Schema::hasColumn('pengeluarans', 'items')) {
+            $usedInPengeluaran = DB::table('pengeluarans')
+                ->whereRaw("items::text LIKE ?", ['%"' . $barang->kode_barang . '"%'])
+                ->exists();
+        }
+        // Atau cek jika kolomnya bernama 'daftar_barang'
+        elseif (\Schema::hasColumn('pengeluarans', 'daftar_barang')) {
+            $usedInPengeluaran = DB::table('pengeluarans')
+                ->whereRaw("daftar_barang::text LIKE ?", ['%"' . $barang->kode_barang . '"%'])
+                ->exists();
+        }
+
+        if ($usedInPengeluaran || $usedInStruk) {
+            return response()->json([
+                'success' => false,
+                'message' => "Barang '{$barang->nama_barang}' tidak dapat dihapus karena sudah digunakan di transaksi."
+            ], 422);
+        }
+
         $barang->delete();
 
-        return redirect()->route('barang.index')->with('deleted', 'Barang berhasil dihapus.');
+        return response()->json([
+            'success' => true,
+            'nama' => $barang->nama_barang
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => "Terjadi kesalahan: " . $e->getMessage()
+        ], 500);
     }
+}
 
     public function bulkDelete(Request $request)
     {

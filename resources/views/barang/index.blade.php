@@ -343,19 +343,50 @@
     });
 
     // Delete modal functions
+        // Ubah: jangan submit langsung, pakai fetch
     function openDeleteModal(formAction, itemName) {
-        document.getElementById('deleteForm').action = formAction;
-
+        const form = document.getElementById('deleteForm');
         const deleteText = document.getElementById('deleteItemText');
-        if (itemName) {
-            deleteText.textContent = `Yakin ingin menghapus data barang "${itemName}" dari daftar?`;
-        } else {
-            deleteText.textContent = "Yakin ingin menghapus data ini dari daftar?";
-        }
-
+        
+        deleteText.textContent = `Yakin ingin menghapus data barang "${itemName}" dari daftar?`;
+        
+        // Simpan action, tapi jangan submit dulu
+        form.setAttribute('action', formAction);
+        
         document.getElementById('deleteModal').classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
     }
+
+    // Submit form dengan fetch
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const action = form.getAttribute('action');
+        
+        fetch(action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: new FormData(form)
+        })
+        .then(response => response.json())
+        .then(data => {
+            closeDeleteModal();
+            
+            if (data.success) {
+                location.reload(); // Berhasil → reload
+            } else {
+                showErrorMessage(data.message); // Gagal → tampilkan modal error
+            }
+        })
+        .catch(error => {
+            closeDeleteModal();
+            showErrorMessage("Terjadi kesalahan saat menghapus barang.");
+        });
+    });
 
     function closeDeleteModal() {
         document.getElementById('deleteModal').classList.add('hidden');
@@ -421,5 +452,42 @@
             }
         }
     });
+        function showErrorMessage(message) {
+        const modal = document.createElement('div');
+        modal.innerHTML = `
+            <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full bg-white">
+                        <div class="bg-red-50 px-4 py-3 sm:px-6 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                            <h3 class="text-sm font-medium text-red-800">Peringatan</h3>
+                        </div>
+                        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <p class="text-sm text-gray-700">${message}</p>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button" onclick="closeErrorModal(this)" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const newModal = modal.firstElementChild;
+        document.body.appendChild(newModal);
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function closeErrorModal(button) {
+        const modal = button.closest('.fixed.inset-0');
+        if (modal) modal.remove();
+        document.body.classList.remove('overflow-hidden');
+    }
 </script>
 @endsection

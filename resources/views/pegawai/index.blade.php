@@ -45,7 +45,45 @@
                     </button>
                 </form>
             </div>
+                        <!-- Notifikasi -->
+            @if(session('success') || session('deleted') || session('error'))
+                <div id="notification" class="mb-6 p-4 rounded-md shadow-sm transition-all duration-300 ease-in-out">
+                    @if(session('success'))
+                        <div class="flex items-center text-green-700 bg-green-100 border border-green-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>{{ session('success') }}</span>
+                        </div>
+                    @elseif(session('deleted'))
+                        <div class="flex items-center text-green-700 bg-green-100 border border-green-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>{{ session('deleted') }}</span>
+                        </div>
+                    @elseif(session('error'))
+                        <div class="flex items-center text-red-700 bg-red-100 border border-red-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span>{{ session('error') }}</span>
+                        </div>
+                    @endif
+                </div>
 
+                <script>
+                    // Hilangkan notifikasi otomatis setelah 5 detik
+                    setTimeout(() => {
+                        const notif = document.getElementById('notification');
+                        if (notif) {
+                            notif.style.opacity = '0';
+                            notif.style.transition = 'opacity 0.5s ease-out';
+                            setTimeout(() => notif.remove(), 500);
+                        }
+                    }, 5000);
+                </script>
+            @endif
             <!-- Bulk actions bar -->
             <div id="bulk-actions" class="flex items-center justify-between mb-4 p-3 bg-red-50 border border-red-200 rounded-lg hidden">
                 <span id="selected-count" class="text-sm text-red-700 font-medium">
@@ -304,19 +342,51 @@
         updateBulkActions();
     });
 
-    // Delete modal functions
-    function openDeleteModal(url, namaPegawai, id) {
-        const form = document.getElementById('deleteForm');
-        const textElement = document.getElementById('deleteItemText');
-        const idInput = document.getElementById('deleteIdInput');
-        const modal = document.getElementById('deleteModal');
+        function openDeleteModal(url, namaPegawai, id) {
+            const form = document.getElementById('deleteForm');
+            const textElement = document.getElementById('deleteItemText');
+            const idInput = document.getElementById('deleteIdInput');
+            const modal = document.getElementById('deleteModal');
 
-        form.action = url;
-        idInput.value = id;
-        textElement.textContent = `Apakah Anda yakin ingin menghapus pegawai "${namaPegawai}"?`;
-        modal.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
-    }
+            // Simpan URL dan ID, tapi jangan submit dulu
+            form.action = url;
+            idInput.value = id;
+            textElement.textContent = `Apakah Anda yakin ingin menghapus pegawai "${namaPegawai}"?`;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+        document.getElementById('deleteForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Cegah submit langsung
+
+            const form = this;
+            const formData = new FormData(form);
+            const action = form.getAttribute('action');
+
+            fetch(action, {
+                method: 'POST',
+                body: new URLSearchParams(formData),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                closeDeleteModal(); // Tutup modal konfirmasi
+
+                if (data.success) {
+                    // Berhasil → reload
+                    location.reload();
+                } else {
+                    // Gagal → tampilkan modal error
+                    showErrorMessage(data.message);
+                }
+            })
+            .catch(error => {
+                closeDeleteModal();
+                showErrorMessage("Terjadi kesalahan saat menghapus pegawai.");
+            });
+        });
 
     function closeDeleteModal() {
         document.getElementById('deleteModal').classList.add('hidden');
@@ -365,5 +435,44 @@
             }
         }
     });
+        function showErrorMessage(message) {
+        const modal = document.createElement('div');
+        modal.innerHTML = `
+            <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div class="inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full bg-white">
+                        <div class="bg-red-50 px-4 py-3 sm:px-6 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                            <h3 class="text-sm font-medium text-red-800">Peringatan</h3>
+                        </div>
+                        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <p class="text-sm text-gray-700">${message}</p>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button" onclick="closeErrorModal(this)" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const newModal = modal.firstElementChild;
+        document.body.appendChild(newModal);
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function closeErrorModal(button) {
+        const modal = button.closest('.fixed.inset-0');
+        if (modal) {
+            modal.remove();
+        }
+        document.body.classList.remove('overflow-hidden');
+    }
 </script>
 @endsection

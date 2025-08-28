@@ -99,7 +99,15 @@ public function update(Request $request, Pegawai $pegawai)
 
 public function destroy(Pegawai $pegawai)
 {
-    // Hapus user yang terkait (jika ada)
+    // Cek hanya di pengeluarans (karena struks tidak punya pegawai_id)
+    if (\DB::table('pengeluarans')->where('pegawai_id', $pegawai->id)->exists()) {
+        return response()->json([
+            'success' => false,
+            'message' => "Pegawai '{$pegawai->nama}' tidak dapat dihapus karena sudah digunakan di data pengeluaran barang."
+        ], 422);
+    }
+
+    // Hapus user jika ada
     if ($pegawai->user) {
         $pegawai->user->delete();
     }
@@ -107,36 +115,46 @@ public function destroy(Pegawai $pegawai)
     // Hapus pegawai
     $pegawai->delete();
 
-    return redirect()
-        ->route('pegawai.index')
-        ->with('deleted', 'Pegawai berhasil dihapus.');
+    return response()->json([
+        'success' => true,
+        'nama' => $pegawai->nama
+    ]);
 }
     public function bulkDelete(Request $request)
 {
     $ids = explode(',', $request->ids);
+    $failedDeletes = [];
+    $successfulDeletes = [];
 
-    if (!empty($ids)) {
-        // Ambil semua pegawai yang dipilih
-        $pegawais = Pegawai::whereIn('id', $ids)->get();
+    if (empty($ids)) {
+        return redirect()->route('pegawai.index')->with('info', 'Tidak ada pegawai yang dipilih.');
+    }
 
-        foreach ($pegawais as $pegawai) {
-            // Hapus user yang terkait jika ada
+    foreach ($ids as $id) {
+        $pegawai = Pegawai::find($id);
+        if (!$pegawai) continue;
+
+        // Cek hanya di pengeluarans
+        if (\DB::table('pengeluarans')->where('pegawai_id', $pegawai->id)->exists()) {
+            $failedDeletes[] = $pegawai->nama;
+        } else {
             if ($pegawai->user) {
                 $pegawai->user->delete();
             }
-
-            // Hapus pegawai
             $pegawai->delete();
+            $successfulDeletes[] = $pegawai->nama;
         }
-
-        return redirect()
-            ->route('pegawai.index')
-            ->with('deleted', 'Pegawai terpilih berhasil dihapus.');
     }
 
-    return redirect()
-        ->route('pegawai.index')
-        ->with('created', 'Tidak ada pegawai yang dipilih.');
+    $message = '';
+    if ($successfulDeletes) {
+        $message .= 'Berhasil dihapus: ' . count($successfulDeletes) . ' pegawai. ';
+    }
+    if ($failedDeletes) {
+        $message .= 'Gagal dihapus: ' . implode(', ', $failedDeletes) . ' (digunakan di pengeluaran).';
+    }
+
+    return redirect()->route('pegawai.index')->with('message', $message);
 }
 
 }
