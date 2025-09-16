@@ -3,20 +3,23 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Admin;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class AdminSeeder extends Seeder
 {
     /**
-     * Jalankan seeder untuk tabel admins.
+     * Run the database seeds.
      */
     public function run(): void
     {
-        Admin::create([
-            'name' => 'Satria Sheva',
-            'email' => 'satriasheva@gmail.com',
-            'password' => Hash::make('12345678'),
+        DB::table('admins')->insert([
+            'name' => 'Super Admin',
+            'email' => 'admin@123.com',
+            'password' => Hash::make('admin123'), // ubah sesuai kebutuhan
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
     }
 }
