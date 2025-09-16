@@ -10,21 +10,29 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    /**
+     * Kolom yang bisa diisi mass assignment
+     */
     protected $fillable = [
         'name',
-        'email',
+        'nip',
         'password',
     ];
 
+    /**
+     * Kolom yang disembunyikan
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * Casting kolom
+     */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -35,5 +43,13 @@ class User extends Authenticatable
     public function pegawai()
     {
         return $this->hasOne(Pegawai::class);
+    }
+
+    /**
+     * ✅ Override untuk autentikasi pakai NIP
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'nip';
     }
 }

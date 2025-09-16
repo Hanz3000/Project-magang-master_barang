@@ -9,7 +9,7 @@
         Tambah Pegawai
     </h2>
 
-    <form action="{{ route('pegawai.store') }}" method="POST" class="space-y-4">
+    <form action="{{ route('pegawai.store') }}" method="POST" class="space-y-4" id="employeeForm">
         @csrf
 
         {{-- NAMA --}}
@@ -53,28 +53,28 @@
             @error('divisi') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
 
-        {{-- EMAIL --}}
-        <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                placeholder="email@example.com"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500">
-            @error('email') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-        </div>
-
         {{-- PASSWORD --}}
         <div>
             <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input type="password" name="password" id="password" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500">
-            @error('password') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-        </div>
-
-        {{-- KONFIRMASI PASSWORD --}}
-        <div>
+            <div class="flex gap-2 mb-2">
+                <input type="text" name="password" id="password" readonly
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                    placeholder="Klik 'Buat Password' untuk mengisi">
+                <button type="button" id="generatePasswordBtn"
+                    class="px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+                    Buat Password
+                </button>
+                <button type="button" id="copyPasswordBtn"
+                    class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                    Salin
+                </button>
+            </div>
             <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
-            <input type="password" name="password_confirmation" id="password_confirmation" required
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500">
+            <input type="text" name="password_confirmation" id="password_confirmation" readonly
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+                placeholder="Klik 'Buat Password' untuk mengisi">
+            <p class="text-xs text-gray-500 mt-1">Format: <code>PW-<em>4digitNIP</em>-<em>3char</em></code>. Rapi & mirip antar NIP yang berurutan.</p>
+            @error('password') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
 
         {{-- AKSI --}}
@@ -110,7 +110,7 @@
                             <div class="max-h-60 overflow-y-auto mb-4">
                                 <ul id="divisiList" class="divide-y divide-gray-200">
                                     @foreach($divisions as $division)
-                                        <li class="py-2 flex justify-between items-center">
+                                        <li class="py-2 flex justify-between items-center" data-id="{{ $division->id }}">
                                             <span>{{ $division->name }}</span>
                                             <div class="flex gap-2">
                                                 <button type="button" onclick="editDivisi('{{ $division->id }}', '{{ $division->name }}')"
@@ -220,8 +220,33 @@
     </div>
 </div>
 
+<!-- Modal Error -->
+<div id="errorModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-red-50 px-4 py-3 sm:px-6 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <h3 class="text-sm font-medium text-red-800">Peringatan</h3>
+            </div>
+            <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <p class="text-sm text-gray-700" id="errorMessage"></p>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="closeErrorModal()"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Fungsi untuk modal divisi
+    // Modal functions
     function openDivisiModal() {
         document.getElementById('divisiModal').classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
@@ -233,7 +258,6 @@
         document.body.classList.remove('overflow-hidden');
     }
 
-    // Fungsi untuk modal edit divisi
     function editDivisi(id, name) {
         document.getElementById('editDivisiId').value = id;
         document.getElementById('editDivisiName').value = name;
@@ -246,7 +270,6 @@
         document.body.classList.remove('overflow-hidden');
     }
 
-    // Fungsi untuk modal hapus divisi
     function confirmDeleteDivisi(id) {
         document.getElementById('deleteDivisiId').value = id;
         document.getElementById('deleteDivisiModal').classList.remove('hidden');
@@ -258,178 +281,235 @@
         document.body.classList.remove('overflow-hidden');
     }
 
-    // Fungsi CRUD divisi
-    function addNewDivisi() {
-        const name = document.getElementById('newDivisiName').value.trim();
-        if (!name) return;
+    // Password generation
+    const nipInput = document.getElementById('nip');
+    const passwordInput = document.getElementById('password');
+    const passwordConfirmationInput = document.getElementById('password_confirmation');
+    const generateBtn = document.getElementById('generatePasswordBtn');
+    const copyBtn = document.getElementById('copyPasswordBtn');
 
-        fetch("{{ route('divisions.store') }}", {
+    async function sha256Hex(text) {
+        const enc = new TextEncoder();
+        const data = enc.encode(text);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hex;
+    }
+
+    function pickCharsFromHex(hex, count = 3) {
+        const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+        let res = '';
+        for (let i = 0; i < count; i++) {
+            const idxHex = hex.slice(i * 2, i * 2 + 2);
+            const val = parseInt(idxHex || '0', 16);
+            res += charset[val % charset.length];
+        }
+        return res;
+    }
+
+    async function generatePasswordFromNip(nip) {
+        if (!nip || nip.length !== 8) return '';
+        const pepper = 'APP_PEPPER';
+        const hex = await sha256Hex(nip + '|' + pepper);
+        const nip4 = nip.slice(-4).padStart(4, '0');
+        const suffix = pickCharsFromHex(hex, 3);
+        return `PW-${nip4}-${suffix}`;
+    }
+
+    generateBtn.addEventListener('click', async function() {
+        const nip = nipInput.value.trim();
+        if (!nip || nip.length !== 8) {
+            showErrorMessage('NIP harus 8 digit angka.');
+            nipInput.focus();
+            return;
+        }
+        const pwd = await generatePasswordFromNip(nip);
+        passwordInput.value = pwd;
+        passwordConfirmationInput.value = pwd; // Sinkronkan dengan konfirmasi
+    });
+
+    copyBtn.addEventListener('click', function() {
+        const val = passwordInput.value.trim();
+        if (!val) {
+            showErrorMessage('Belum ada password untuk disalin. Tekan "Buat Password" terlebih dahulu.');
+            return;
+        }
+        navigator.clipboard.writeText(val).then(() => {
+            copyBtn.textContent = 'Tersalin';
+            setTimeout(() => copyBtn.textContent = 'Salin', 1200);
+        }).catch(() => {
+            showErrorMessage('Gagal menyalin ke clipboard.');
+        });
+    });
+
+    nipInput.addEventListener('input', function() {
+        if (this.value.length > 8) this.value = this.value.slice(0, 8);
+        if (passwordInput.value && this.value) {
+            passwordInput.classList.add('border-yellow-400');
+            passwordInput.setAttribute('title', 'Jika NIP diubah, tekan "Buat Password" lagi untuk menghasilkan password yang sesuai.');
+        } else {
+            passwordInput.classList.remove('border-yellow-400');
+            passwordInput.removeAttribute('title');
+        }
+    });
+
+    // Divisi Management
+    document.getElementById('searchDivisi').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const listItems = document.querySelectorAll('#divisiList li');
+        listItems.forEach(item => {
+            const name = item.querySelector('span').textContent.toLowerCase();
+            item.style.display = name.includes(searchTerm) ? 'flex' : 'none';
+        });
+    });
+
+    document.getElementById('newDivisiName').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') addNewDivisi();
+    });
+
+    document.getElementById('editDivisiName').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') updateDivisi();
+    });
+
+    function addNewDivisi() {
+        const newDivisiName = document.getElementById('newDivisiName').value.trim();
+        if (!newDivisiName) {
+            showErrorMessage('Nama divisi tidak boleh kosong.');
+            return;
+        }
+
+        fetch('{{ route("divisi.store") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify({ name })
+            body: JSON.stringify({ name: newDivisiName })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Tambahkan ke select box
-                const select = document.getElementById('divisi');
-                const option = document.createElement('option');
-                option.value = data.divisi.name;
-                option.text = data.divisi.name;
-                select.appendChild(option);
-                option.selected = true;
-
-                // Tambahkan ke daftar
-                const listItem = document.createElement('li');
-                listItem.className = 'py-2 flex justify-between items-center';
-                listItem.innerHTML = `
-                    <span>${data.divisi.name}</span>
+                const divisiList = document.getElementById('divisiList');
+                const newLi = document.createElement('li');
+                newLi.className = 'py-2 flex justify-between items-center';
+                newLi.setAttribute('data-id', data.divisi.id);
+                newLi.innerHTML = `
+                    <span>${newDivisiName}</span>
                     <div class="flex gap-2">
-                        <button type="button" onclick="editDivisi('${data.divisi.id}', '${data.divisi.name}')"
-                            class="text-blue-500 hover:text-blue-700">
-                            Edit
-                        </button>
-                        <button type="button" 
-                            onclick="confirmDeleteDivisi('{{ $division->id }}', '{{ $division->name }}', {{ $division->pegawais_count }})"
-                            class="text-red-500 hover:text-red-700"
-                            {{ $division->pegawais_count > 0 ? 'disabled title=Divisi sedang digunakan' : '' }}>
-                            Hapus
-                        </button>
+                        <button type="button" onclick="editDivisi('${data.divisi.id}', '${newDivisiName}')"
+                            class="text-blue-500 hover:text-blue-700">Edit</button>
+                        <button type="button" onclick="confirmDeleteDivisi('${data.divisi.id}')"
+                            class="text-red-500 hover:text-red-700">Hapus</button>
                     </div>
                 `;
-                document.getElementById('divisiList').appendChild(listItem);
+                divisiList.appendChild(newLi);
 
-                // Reset input
+                const selectDivisi = document.getElementById('divisi');
+                const newOption = new Option(newDivisiName, newDivisiName);
+                selectDivisi.add(newOption);
+
                 document.getElementById('newDivisiName').value = '';
-                
-                // Refresh halaman setelah 1 detik
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
+                showErrorMessage('Divisi berhasil ditambahkan.');
+            } else {
+                showErrorMessage(data.message || 'Gagal menambahkan divisi.');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(() => showErrorMessage('Terjadi kesalahan saat menambahkan divisi.'));
     }
 
     function updateDivisi() {
-        const id = document.getElementById('editDivisiId').value;
-        const name = document.getElementById('editDivisiName').value.trim();
-        if (!name) return;
+        const divisiId = document.getElementById('editDivisiId').value;
+        const newName = document.getElementById('editDivisiName').value.trim();
+        if (!newName) {
+            showErrorMessage('Nama divisi tidak boleh kosong.');
+            return;
+        }
 
-        fetch(`/divisions/${id}`, {
-            method: 'POST',
+        fetch(`{{ url('divisi') }}/${divisiId}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'X-HTTP-Method-Override': 'PUT'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify({ name })
+            body: JSON.stringify({ name: newName })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Refresh halaman setelah update
-                location.reload();
+                const divisiList = document.getElementById('divisiList');
+                const listItems = divisiList.queryAll('li');
+                listItems.forEach(item => {
+                    if (item.getAttribute('data-id') === divisiId) {
+                        item.querySelector('span').textContent = newName;
+                        item.querySelector('button[onclick*=editDivisi]').setAttribute('onclick', `editDivisi('${divisiId}', '${newName}')`);
+                    }
+                });
+
+                const selectDivisi = document.getElementById('divisi');
+                Array.from(selectDivisi.options).forEach(option => {
+                    if (option.value === data.divisi.old_name) {
+                        option.value = newName;
+                        option.text = newName;
+                    }
+                });
+
+                closeEditDivisiModal();
+                showErrorMessage('Divisi berhasil diperbarui.');
+            } else {
+                showErrorMessage(data.message || 'Gagal memperbarui divisi.');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(() => showErrorMessage('Terjadi kesalahan saat memperbarui divisi.'));
     }
 
-            function deleteDivisi() {
-        const id = document.getElementById('deleteDivisiId').value;
-        fetch(`/divisions/${id}`, {
-            method: 'POST',
+    function deleteDivisi() {
+        const divisiId = document.getElementById('deleteDivisiId').value;
+
+        fetch(`{{ url('divisi') }}/${divisiId}`, {
+            method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'X-HTTP-Method-Override': 'DELETE'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                const divisiList = document.getElementById('divisiList');
+                const listItems = divisiList.queryAll('li');
+                listItems.forEach(item => {
+                    if (item.getAttribute('data-id') === divisiId) item.remove();
+                });
+
+                const selectDivisi = document.getElementById('divisi');
+                Array.from(selectDivisi.options).forEach(option => {
+                    if (option.value === data.divisi_name) option.remove();
+                });
+
+                closeDeleteDivisiModal();
+                showErrorMessage('Divisi berhasil dihapus.');
             } else {
-                showErrorMessage(data.message);
+                showErrorMessage(data.message || 'Gagal menghapus divisi.');
             }
         })
-        .catch(error => {
-            showErrorMessage("Terjadi kesalahan saat menghapus divisi.");
-        });
+        .catch(() => showErrorMessage('Terjadi kesalahan saat menghapus divisi.'));
     }
 
-    // Pencarian divisi
-    document.getElementById('searchDivisi').addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const listItems = document.querySelectorAll('#divisiList li');
-        
-        listItems.forEach(item => {
-            const name = item.querySelector('span').textContent.toLowerCase();
-            if (name.includes(searchTerm)) {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    });
-
-    // Handle enter key on new divisi input
-    document.getElementById('newDivisiName').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            addNewDivisi();
-        }
-    });
-
-    // Handle enter key on edit divisi input
-    document.getElementById('editDivisiName').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            updateDivisi();
-        }
-    });
-
-        function showErrorMessage(message) {
-        const modal = document.createElement('div');
-        modal.innerHTML = `
-            <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                    <div class="inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full bg-white">
-                        <div class="bg-red-50 px-4 py-3 sm:px-6 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                            </svg>
-                            <h3 class="text-sm font-medium text-red-800">Peringatan</h3>
-                        </div>
-                        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <p class="text-sm text-gray-700">${message}</p>
-                        </div>
-                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="button" onclick="closeErrorModal(this)" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                OK
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        const newModal = modal.firstElementChild;
-        document.body.appendChild(newModal);
+    // Error Modal
+    function showErrorMessage(message) {
+        const modal = document.getElementById('errorModal');
+        document.getElementById('errorMessage').textContent = message;
+        modal.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
     }
 
-    function closeErrorModal(button) {
-        const modal = button.closest('.fixed.inset-0'); // Ambil modal dari tombol
-        if (modal) {
-            modal.remove();
-        }
+    function closeErrorModal() {
+        const modal = document.getElementById('errorModal');
+        modal.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
     }
-    
 </script>
+
 <style>
     @keyframes slideUp {
         from { transform: translateY(100%); opacity: 0; }
