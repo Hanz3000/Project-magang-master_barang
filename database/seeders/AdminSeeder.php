@@ -16,8 +16,8 @@ class AdminSeeder extends Seeder
     {
         DB::table('admins')->insert([
             'name' => 'Super Admin',
-            'email' => 'admin@123.com',
-            'password' => Hash::make('admin123'), // ubah sesuai kebutuhan
+            'nip' => '12345678', // ganti dengan NIP unik
+            'password' => Hash::make('admin123'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);

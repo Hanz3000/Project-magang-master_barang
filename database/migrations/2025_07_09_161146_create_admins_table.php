@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('admins', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('nip')->unique(); // ganti email → nip
             $table->string('password');
+            $table->rememberToken(); // penting kalau pakai "remember me"
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.

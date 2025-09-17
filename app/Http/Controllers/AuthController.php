@@ -4,72 +4,73 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Admin; // gunakan model Admin, bukan User
+use App\Models\Admin;
 
 class AuthController extends Controller
 {
-    // Tampilkan form login
+    // Form login
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    // Proses login khusus admin
+    // Proses login pakai NIP
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => 'required|email',
+            'nip'      => 'required',
             'password' => 'required',
         ], [
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid.',
+            'nip.required'      => 'NIP wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        $remember = $request->has('remember');
+        $remember = $request->boolean('remember');
 
-        if (Auth::guard('admin')->attempt($credentials, $remember)) {
+        if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
             return redirect()->route('barang.index');
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
+            'nip' => 'NIP atau password salah.',
         ])->withInput();
     }
 
-    // Tampilkan form registrasi untuk admin
+    // Form register
     public function showRegisterForm()
     {
         return view('auth.register');
     }
 
-    // Proses registrasi → langsung ke tabel admins
+    // Proses register → masuk ke tabel admins
     public function register(Request $request)
     {
         $validatedData = $request->validate([
             'name'     => 'required|max:255',
-            'email'    => 'required|email|unique:admins',
+            'nip'      => 'required|unique:admins',
             'password' => 'required|min:6|confirmed',
         ]);
 
         $admin = Admin::create([
             'name'     => $validatedData['name'],
-            'email'    => $validatedData['email'],
+            'nip'      => $validatedData['nip'],
             'password' => bcrypt($validatedData['password']),
         ]);
 
-        Auth::guard('admin')->login($admin);
+        Auth::login($admin);
+        $request->session()->regenerate();
 
         return redirect()->route('barang.index');
     }
 
-    // Proses logout untuk admin
+    // Logout
     public function logout(Request $request)
     {
-        Auth::guard('admin')->logout();
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 

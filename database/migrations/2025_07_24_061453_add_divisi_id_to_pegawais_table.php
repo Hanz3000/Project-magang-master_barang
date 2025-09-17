@@ -9,7 +9,10 @@ class AddDivisiIdToPegawaisTable extends Migration
     public function up()
     {
         Schema::table('pegawais', function (Blueprint $table) {
-            $table->foreignId('divisi_id')->nullable()->constrained('divisions')->onDelete('set null');
+            $table->foreignId('divisi_id')
+                  ->nullable()
+                  ->constrained('divisions')
+                  ->onDelete('set null');
         });
     }
 
@@ -21,4 +24,3 @@ class AddDivisiIdToPegawaisTable extends Migration
         });
     }
 }
-
