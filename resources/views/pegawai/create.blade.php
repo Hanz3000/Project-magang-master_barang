@@ -65,14 +65,11 @@
                     Buat Password
                 </button>
                 <button type="button" id="copyPasswordBtn"
-                    class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                    class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                    style="transition: none;">
                     Salin
                 </button>
             </div>
-            <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
-            <input type="text" name="password_confirmation" id="password_confirmation" readonly
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
-                placeholder="Klik 'Buat Password' untuk mengisi">
             <p class="text-xs text-gray-500 mt-1">Format: <code>PW-<em>4digitNIP</em>-<em>3char</em></code>. Rapi & mirip antar NIP yang berurutan.</p>
             @error('password') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
@@ -245,6 +242,10 @@
     </div>
 </div>
 
+<div id="toastCopied" class="fixed top-6 right-6 z-50 bg-green-500 text-white px-4 py-2 rounded shadow-lg hidden">
+    Password berhasil disalin!
+</div>
+
 <script>
     // Modal functions
     function openDivisiModal() {
@@ -284,7 +285,6 @@
     // Password generation
     const nipInput = document.getElementById('nip');
     const passwordInput = document.getElementById('password');
-    const passwordConfirmationInput = document.getElementById('password_confirmation');
     const generateBtn = document.getElementById('generatePasswordBtn');
     const copyBtn = document.getElementById('copyPasswordBtn');
 
@@ -326,21 +326,19 @@
         }
         const pwd = await generatePasswordFromNip(nip);
         passwordInput.value = pwd;
-        passwordConfirmationInput.value = pwd; // Sinkronkan dengan konfirmasi
     });
 
     copyBtn.addEventListener('click', function() {
         const val = passwordInput.value.trim();
         if (!val) {
-            showErrorMessage('Belum ada password untuk disalin. Tekan "Buat Password" terlebih dahulu.');
+            showErrorMessage('Belum ada password untuk disalin. Tekan "NIP" dan "Buat Password" terlebih dahulu.');
             return;
         }
-        navigator.clipboard.writeText(val).then(() => {
-            copyBtn.textContent = 'Tersalin';
-            setTimeout(() => copyBtn.textContent = 'Salin', 1200);
-        }).catch(() => {
-            showErrorMessage('Gagal menyalin ke clipboard.');
-        });
+        navigator.clipboard.writeText(val)
+            .then(showToastCopied)
+            .catch(() => {
+                showErrorMessage('Gagal menyalin ke clipboard.');
+            });
     });
 
     nipInput.addEventListener('input', function() {
@@ -507,6 +505,15 @@
         const modal = document.getElementById('errorModal');
         modal.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
+    }
+
+    // Toast message
+    function showToastCopied() {
+        const toast = document.getElementById('toastCopied');
+        toast.classList.remove('hidden');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 1800);
     }
 </script>
 

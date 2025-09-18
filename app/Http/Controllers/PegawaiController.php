@@ -38,7 +38,7 @@ class PegawaiController extends Controller
             'nama' => 'required|string|max:255',
             'nip' => 'required|string|size:8|unique:pegawais,nip',
             'divisi' => 'required|string|max:255',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:6', // Hapus 'confirmed'
         ]);
 
         // Buat user terlebih dahulu
@@ -59,7 +59,7 @@ class PegawaiController extends Controller
             'nama' => $validated['nama'],
             'nip' => $validated['nip'],
             'divisi_id' => $division->id,
-            'user_id' => $user->id, // ✅ simpan relasi user
+            'user_id' => $user->id,
         ]);
 
         return redirect()->route('pegawai.index')->with('success', 'Pegawai berhasil ditambahkan.');
