@@ -5,13 +5,13 @@
 @section('content')
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-xl font-semibold text-gray-800">Master Pegawai</h2>
-                <p class="text-sm text-gray-600 mt-1">Kelola daftar pegawai yang tersedia</p>
+                <h2 class="text-base sm:text-lg font-semibold text-gray-800 leading-tight">Master Pegawai</h2>
+                <p class="text-xs sm:text-sm text-gray-600 mt-1">Kelola daftar pegawai yang tersedia</p>
             </div>
             <a href="{{ route('pegawai.create') }}"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+               class="inline-flex items-center px-4 py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
@@ -21,76 +21,68 @@
 
         <div class="px-6 py-4">
             <!-- Search bar -->
-            <div class="flex justify-end mb-4">
-                <form method="GET" action="{{ route('pegawai.index') }}" class="flex items-center gap-2">
-                    <div class="relative">
-                        <input
-                            type="text"
-                            id="search-input"
-                            name="q"
-                            value="{{ request('q') }}"
-                            placeholder="Cari nama pegawai atau NIP..."
-                            class="pl-3 pr-10 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+            <div class="mb-4 flex justify-center">
+                <form method="GET" action="{{ route('pegawai.index') }}" class="w-full max-w-xs flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="search-input" name="q" value="{{ request('q') }}"
+                           placeholder="Cari nama pegawai atau NIP..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <div class="flex gap-2">
+                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
+                            Cari
+                        </button>
                         @if(request('q'))
-                        <a href="{{ route('pegawai.index') }}" class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-red-500" title="Reset pencarian">
-                            &times;
+                        <a href="{{ route('pegawai.index') }}" class="flex items-center px-2 py-2 bg-gray-200 rounded-lg text-xs text-gray-500 hover:bg-gray-300">
+                            Reset
                         </a>
                         @endif
                     </div>
-
-                    <button
-                        type="submit"
-                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-200">
-                        Cari
-                    </button>
                 </form>
             </div>
-                        <!-- Notifikasi -->
-            @if(session('success') || session('deleted') || session('error'))
-                <div id="notification" class="mb-6 p-4 rounded-md shadow-sm transition-all duration-300 ease-in-out">
-                    @if(session('success'))
-                        <div class="flex items-center text-green-700 bg-green-100 border border-green-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span>{{ session('success') }}</span>
-                        </div>
-                    @elseif(session('deleted'))
-                        <div class="flex items-center text-green-700 bg-green-100 border border-green-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span>{{ session('deleted') }}</span>
-                        </div>
-                    @elseif(session('error'))
-                        <div class="flex items-center text-red-700 bg-red-100 border border-red-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            <span>{{ session('error') }}</span>
-                        </div>
-                    @endif
-                </div>
 
-                <script>
-                    // Hilangkan notifikasi otomatis setelah 5 detik
-                    setTimeout(() => {
-                        const notif = document.getElementById('notification');
-                        if (notif) {
-                            notif.style.opacity = '0';
-                            notif.style.transition = 'opacity 0.5s ease-out';
-                            setTimeout(() => notif.remove(), 500);
-                        }
-                    }, 5000);
-                </script>
+            <!-- Notification -->
+            @if(session('success') || session('deleted') || session('error'))
+            <div id="notification" class="mb-6 p-4 rounded-md shadow-sm transition-all duration-300 ease-in-out">
+                @if(session('success'))
+                <div class="flex items-center text-green-700 bg-green-100 border border-green-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{{ session('success') }}</span>
+                </div>
+                @elseif(session('deleted'))
+                <div class="flex items-center text-green-700 bg-green-100 border border-green-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>{{ session('deleted') }}</span>
+                </div>
+                @elseif(session('error'))
+                <div class="flex items-center text-red-700 bg-red-100 border border-red-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>{{ session('error') }}</span>
+                </div>
+                @endif
+            </div>
+            <script>
+                setTimeout(() => {
+                    const notif = document.getElementById('notification');
+                    if (notif) {
+                        notif.style.opacity = '0';
+                        notif.style.transition = 'opacity 0.5s ease-out';
+                        setTimeout(() => notif.remove(), 500);
+                    }
+                }, 5000);
+            </script>
             @endif
+
             <!-- Bulk actions bar -->
             <div id="bulk-actions" class="flex items-center justify-between mb-4 p-3 bg-red-50 border border-red-200 rounded-lg hidden">
                 <span id="selected-count" class="text-sm text-red-700 font-medium">
                     <span id="count">0</span> pegawai dipilih
                 </span>
                 <button type="button" id="bulk-delete-btn" onclick="openBulkDeleteModal()"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
@@ -98,74 +90,115 @@
                 </button>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-    <div class="flex items-center space-x-3">
-        <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-        <span>No</span>
-    </div>
-</th>
+            <!-- Responsive Table/Card -->
+            <div class="w-full">
+                <!-- Table for large screens -->
+                <div class="hidden sm:block overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <span>No</span>
+                                    </div>
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAMA PEGAWAI</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIP</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DIVISI</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse ($pegawais as $pegawai)
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="checkbox" name="ids[]" value="{{ $pegawai->id }}"
+                                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded row-checkbox">
+                                        <span>{{ $loop->iteration }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ $pegawai->nama }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ $pegawai->nip }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ $pegawai->division->name ?? '-' }}</td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <a href="{{ route('pegawai.edit', $pegawai->id) }}"
+                                           class="inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-full transition-colors duration-150"
+                                           title="Edit pegawai">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </a>
+                                        <button type="button"
+                                                onclick="openDeleteModal('{{ route('pegawai.destroy', $pegawai->id) }}', '{{ $pegawai->nama }}', '{{ $pegawai->id }}')"
+                                                class="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full transition-colors duration-150"
+                                                title="Hapus pegawai {{ $pegawai->nama }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="px-4 py-12 text-center text-sm text-gray-500">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p class="text-gray-600 font-medium">Belum ada pegawai yang ditambahkan.</p>
+                                        <p class="text-gray-400 text-xs mt-1">Klik "Tambah Pegawai" untuk menambahkan data pertama</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAMA PEGAWAI</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIP</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DIVISI</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse ($pegawais as $pegawai)
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <div class="flex items-center space-x-3">
-                                    <input type="checkbox" name="ids[]" value="{{ $pegawai->id }}"
-                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded row-checkbox">
-                                    <span>{{ $loop->iteration }}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $pegawai->nama }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $pegawai->nip }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $pegawai->division->name ?? '-' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <a href="{{ route('pegawai.edit', $pegawai->id) }}"
-                                        class="inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-full transition-colors duration-150"
-                                        title="Edit pegawai">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </a>
-                                    <button type="button"
-                                        onclick="openDeleteModal('{{ route('pegawai.destroy', $pegawai->id) }}', '{{ $pegawai->nama }}', '{{ $pegawai->id }}')"
-                                        class="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full transition-colors duration-150"
-                                        title="Hapus pegawai {{ $pegawai->nama }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500">
-                                <div class="flex flex-col items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <!-- Card/grid for small screens -->
+                <div class="sm:hidden flex flex-col items-center gap-4 w-full">
+                    @forelse ($pegawais as $pegawai)
+                    <div class="bg-white rounded-lg shadow p-4 w-full max-w-[340px] flex flex-col gap-2 mx-auto">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" name="ids[]" value="{{ $pegawai->id }}"
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded row-checkbox">
+                                <span class="text-xs font-semibold text-gray-500">No: {{ $loop->iteration }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('pegawai.edit', $pegawai->id) }}"
+                                   class="text-blue-600 hover:text-blue-800" title="Edit pegawai">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
-                                    <p class="text-gray-600 font-medium">Belum ada pegawai yang ditambahkan.</p>
-                                    <p class="text-gray-400 text-xs mt-1">Klik "Tambah Pegawai" untuk menambahkan data pertama</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                </a>
+                                <button type="button"
+                                        onclick="openDeleteModal('{{ route('pegawai.destroy', $pegawai->id) }}', '{{ $pegawai->nama }}', '{{ $pegawai->id }}')"
+                                        class="text-red-600 hover:text-red-800" title="Hapus pegawai">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">{{ $pegawai->nama }}</div>
+                            <div class="text-xs text-gray-500">NIP: {{ $pegawai->nip }}</div>
+                            <div class="text-xs text-gray-500">Divisi: {{ $pegawai->division->name ?? '-' }}</div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="bg-white rounded-lg shadow p-6 text-center text-gray-500 w-full max-w-[340px] mx-auto">
+                        Belum ada pegawai yang ditambahkan.
+                    </div>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>
@@ -257,29 +290,24 @@
         let searchTimeout;
 
         searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout); // Hapus timeout sebelumnya
+            clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const query = searchInput.value.trim();
                 const url = new URL(window.location.href);
 
                 if (query) {
-                    url.searchParams.set('q', query); // Tambahkan parameter pencarian
+                    url.searchParams.set('q', query);
                 } else {
-                    url.searchParams.delete('q'); // Hapus parameter jika kosong
+                    url.searchParams.delete('q');
                 }
 
-                // Perbarui URL tanpa memuat ulang halaman
                 history.replaceState(null, '', url.toString());
 
-                // Kirim permintaan pencarian menggunakan AJAX
                 fetch(url.toString(), {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Perbarui tabel hasil pencarian
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const newTable = doc.querySelector('table');
@@ -290,7 +318,7 @@
                     }
                 })
                 .catch(error => console.error('Error:', error));
-            }, 500); // Tunggu 500ms sebelum mengirim permintaan
+            }, 500);
         });
     });
 
@@ -329,71 +357,63 @@
         }
 
         selectAll.addEventListener('change', function() {
-            rowCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
+            rowCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
             updateBulkActions();
         });
 
-        rowCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateBulkActions);
-        });
+        rowCheckboxes.forEach(checkbox => checkbox.addEventListener('change', updateBulkActions));
 
         updateBulkActions();
     });
 
-        function openDeleteModal(url, namaPegawai, id) {
-            const form = document.getElementById('deleteForm');
-            const textElement = document.getElementById('deleteItemText');
-            const idInput = document.getElementById('deleteIdInput');
-            const modal = document.getElementById('deleteModal');
+    function openDeleteModal(url, namaPegawai, id) {
+        const form = document.getElementById('deleteForm');
+        const textElement = document.getElementById('deleteItemText');
+        const idInput = document.getElementById('deleteIdInput');
+        const modal = document.getElementById('deleteModal');
 
-            // Simpan URL dan ID, tapi jangan submit dulu
-            form.action = url;
-            idInput.value = id;
-            textElement.textContent = `Apakah Anda yakin ingin menghapus pegawai "${namaPegawai}"?`;
-            modal.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-        }
-        document.getElementById('deleteForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Cegah submit langsung
+        form.action = url;
+        idInput.value = id;
+        textElement.textContent = `Apakah Anda yakin ingin menghapus pegawai "${namaPegawai}"?`;
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    }
 
-            const form = this;
-            const formData = new FormData(form);
-            const action = form.getAttribute('action');
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-            fetch(action, {
-                method: 'POST',
-                body: new URLSearchParams(formData),
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                closeDeleteModal(); // Tutup modal konfirmasi
+        const form = this;
+        const formData = new FormData(form);
+        const action = form.getAttribute('action');
 
-                if (data.success) {
-                    // Berhasil → reload
-                    location.reload();
-                } else {
-                    // Gagal → tampilkan modal error
-                    showErrorMessage(data.message);
-                }
-            })
-            .catch(error => {
-                closeDeleteModal();
-                showErrorMessage("Terjadi kesalahan saat menghapus pegawai.");
-            });
+        fetch(action, {
+            method: 'POST',
+            body: new URLSearchParams(formData),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            closeDeleteModal();
+            if (data.success) {
+                location.reload();
+            } else {
+                showErrorMessage(data.message);
+            }
+        })
+        .catch(error => {
+            closeDeleteModal();
+            showErrorMessage("Terjadi kesalahan saat menghapus pegawai.");
         });
+    });
 
     function closeDeleteModal() {
         document.getElementById('deleteModal').classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
     }
 
-    // Bulk delete modal functions
     function openBulkDeleteModal() {
         const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
         const selectedCount = checkedBoxes.length;
@@ -411,31 +431,22 @@
         document.body.classList.remove('overflow-hidden');
     }
 
-    // Close modals when clicking outside
     document.getElementById('deleteModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeDeleteModal();
-        }
+        if (e.target === this) closeDeleteModal();
     });
 
     document.getElementById('bulkDeleteModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeBulkDeleteModal();
+        if (e.target === this) closeBulkDeleteModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (!document.getElementById('deleteModal').classList.contains('hidden')) closeDeleteModal();
+            if (!document.getElementById('bulkDeleteModal').classList.contains('hidden')) closeBulkDeleteModal();
         }
     });
 
-    // Close modals with ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            if (!document.getElementById('deleteModal').classList.contains('hidden')) {
-                closeDeleteModal();
-            }
-            if (!document.getElementById('bulkDeleteModal').classList.contains('hidden')) {
-                closeBulkDeleteModal();
-            }
-        }
-    });
-        function showErrorMessage(message) {
+    function showErrorMessage(message) {
         const modal = document.createElement('div');
         modal.innerHTML = `
             <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -462,16 +473,13 @@
             </div>
         `;
 
-        const newModal = modal.firstElementChild;
-        document.body.appendChild(newModal);
+        document.body.appendChild(modal.firstElementChild);
         document.body.classList.add('overflow-hidden');
     }
 
     function closeErrorModal(button) {
         const modal = button.closest('.fixed.inset-0');
-        if (modal) {
-            modal.remove();
-        }
+        if (modal) modal.remove();
         document.body.classList.remove('overflow-hidden');
     }
 </script>
