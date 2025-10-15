@@ -1,14 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Selamat Datang di Sistem Master Data</h1>
-
-        <!-- Time Filter -->
-        <div class="flex space-x-2">
-            <form action="{{ route('dashboard.filter') }}" method="GET" class="flex space-x-2">
-                <select name="time" id="timeFilter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+<div class="p-4 sm:p-6 overflow-x-hidden">
+    <div class="flex flex-col gap-4 mb-6 items-center">
+        <h1 class="text-2xl font-bold text-gray-800 text-center break-words w-full max-w-md">
+            Selamat Datang di Sistem Master Data
+        </h1>
+        <!-- Filter Waktu -->
+        <div class="flex justify-center w-full">
+            <form action="{{ route('dashboard.filter') }}" method="GET" class="flex gap-2 w-full max-w-xs">
+                <select name="time" id="timeFilter" class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                     <option value="today" {{ (isset($time) && $time == 'today') ? 'selected' : '' }}>Hari Ini</option>
                     <option value="week" {{ (isset($time) && $time == 'week') ? 'selected' : '' }}>Minggu Ini</option>
                     <option value="month" {{ (isset($time) && $time == 'month') ? 'selected' : '' }}>Bulan Ini</option>
@@ -23,7 +24,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Total Barang -->
-        <div class="bg-white shadow rounded-xl p-5 transition-all hover:shadow-lg">
+        <div class="bg-white shadow rounded-xl p-5 w-full max-w-md mx-auto transition-all hover:shadow-lg">
             <div class="flex justify-between mb-3">
                 <h2 class="text-lg font-semibold text-gray-700">Total Barang</h2>
                 <a href="{{ route('barang.index') }}" class="text-blue-500 text-sm hover:text-blue-700">Lihat Detail</a>
@@ -44,7 +45,7 @@
         </div>
 
         <!-- Total Pegawai -->
-        <div class="bg-white shadow rounded-xl p-5 transition-all hover:shadow-lg">
+        <div class="bg-white shadow rounded-xl p-5 w-full max-w-md mx-auto transition-all hover:shadow-lg">
             <div class="flex justify-between mb-3">
                 <h2 class="text-lg font-semibold text-gray-700">Total Pegawai</h2>
                 <a href="{{ route('pegawai.index') }}" class="text-blue-500 text-sm hover:text-blue-700">Lihat Detail</a>
@@ -67,7 +68,7 @@
 
     <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Barang Terbaru -->
-        <div class="bg-white shadow rounded-xl p-4 transition-all hover:shadow-lg">
+        <div class="bg-white shadow rounded-xl p-4 w-full max-w-md mx-auto transition-all hover:shadow-lg">
             <div class="flex justify-between items-center mb-3">
                 <h4 class="font-semibold text-gray-600">Barang Terbaru</h4>
                 <span class="text-xs text-gray-500">Terakhir ditambahkan</span>
@@ -99,7 +100,7 @@
         </div>
 
         <!-- Pegawai Terbaru -->
-        <div class="bg-white shadow rounded-xl p-4 transition-all hover:shadow-lg">
+        <div class="bg-white shadow rounded-xl p-4 w-full max-w-md mx-auto transition-all hover:shadow-lg">
             <div class="flex justify-between items-center mb-3">
                 <h4 class="font-semibold text-gray-600">Pegawai Terbaru</h4>
                 <span class="text-xs text-gray-500">Terakhir ditambahkan</span>

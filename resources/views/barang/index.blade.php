@@ -5,13 +5,13 @@
 @section('content')
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h2 class="text-xl font-semibold text-gray-800">Master Barang</h2>
                 <p class="text-sm text-gray-600 mt-1">Kelola daftar barang yang tersedia</p>
             </div>
             <a href="{{ route('barang.create') }}"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
@@ -20,13 +20,12 @@
         </div>
 
         <div class="px-6 py-4">
-            <!-- Kontrol untuk bulk actions - hanya muncul jika ada item terpilih -->
             <div id="bulk-actions" class="flex items-center justify-between mb-4 p-3 bg-red-50 border border-red-200 rounded-lg hidden">
                 <span id="selected-count" class="text-sm text-red-700 font-medium">
                     <span id="count">0</span> item dipilih
                 </span>
                 <button type="button" id="bulk-delete-btn" onclick="openBulkDeleteModal()"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
@@ -34,131 +33,159 @@
                 </button>
             </div>
 
-            <div class="flex justify-end mb-4">
-                <form method="GET" action="{{ route('barang.index') }}" class="flex items-center space-x-2">
-                    <input
-                        type="text"
-                        id="search-input" 
-                        name="q"
-                        value="{{ request('q') }}"
-                        placeholder="Cari nama barang..."
-                        class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button
-                        type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
-                        Cari
-                    </button>
-                    @if(request('q'))
-                    <a href="{{ route('barang.index') }}" class="ml-2 text-sm text-gray-500 hover:underline">x</a>
-                    @endif
+            <div class="mb-4 w-full flex justify-center">
+                <form method="GET" action="{{ route('barang.index') }}" class="w-full max-w-xs flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="search-input" name="q" value="{{ request('q') }}"
+                           placeholder="Cari nama barang..." class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <div class="flex gap-2">
+                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
+                            Cari
+                        </button>
+                        @if(request('q'))
+                        <a href="{{ route('barang.index') }}" class="flex items-center px-3 py-2 bg-gray-200 rounded-md text-sm text-gray-500 hover:bg-gray-300">x</a>
+                        @endif
+                    </div>
                 </form>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <div class="flex items-center space-x-3">
-                                    <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                    <span>NO</span>
-                                </div>
-                            </th>
-                            {{-- NAMA BARANG --}}
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <a href="{{ route('barang.index', array_merge(request()->query(), ['sort' => 'nama_barang', 'direction' => ($sort === 'nama_barang' && $direction === 'asc') ? 'desc' : 'asc'])) }}"
-                                    class="flex items-center space-x-1 hover:underline">
-                                    <span>Nama Barang</span>
-                                    <svg class="w-3 h-3 {{ $sort === 'nama_barang' ? 'text-gray-800' : 'text-gray-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="{{ $sort === 'nama_barang' && $direction === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" />
-                                    </svg>
-                                </a>
-                            </th>
-
-                            {{-- KODE BARANG --}}
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <a href="{{ route('barang.index', array_merge(request()->query(), ['sort' => 'kode_barang', 'direction' => ($sort === 'kode_barang' && $direction === 'asc') ? 'desc' : 'asc'])) }}"
-                                    class="flex items-center space-x-1 hover:underline">
-                                    <span>Kode Barang</span>
-                                    <svg class="w-3 h-3 {{ $sort === 'kode_barang' ? 'text-gray-800' : 'text-gray-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="{{ $sort === 'kode_barang' && $direction === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" />
-                                    </svg>
-                                </a>
-                            </th>
-
-                            {{-- JUMLAH --}}
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <a href="{{ route('barang.index', array_merge(request()->query(), ['sort' => 'jumlah', 'direction' => ($sort === 'jumlah' && $direction === 'asc') ? 'desc' : 'asc'])) }}"
-                                    class="flex items-center space-x-1 hover:underline">
-                                    <span>Jumlah</span>
-                                    <svg class="w-3 h-3 {{ $sort === 'jumlah' ? 'text-gray-800' : 'text-gray-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="{{ $sort === 'jumlah' && $direction === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" />
-                                    </svg>
-                                </a>
-                            </th>
-
-
-                            <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">JUMLAH</th> -->
-
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse ($barangs as $barang)
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <div class="flex items-center space-x-3">
-                                    <input type="checkbox" name="ids[]" value="{{ $barang->id }}"
-                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded row-checkbox">
-                                    <span>{{ $loop->iteration }}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $barang->nama_barang }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ $barang->kode_barang }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ $barang->jumlah }}</td>
-
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <a href="{{ route('barang.edit', $barang->id) }}"
-                                        class="inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-full transition-colors duration-150"
-                                        title="Edit barang">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            <div class="w-full">
+                <!-- Table for large screens -->
+                <div class="hidden sm:block overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="checkbox" id="select-all" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                        <span>NO</span>
+                                    </div>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <a href="{{ route('barang.index', array_merge(request()->query(), ['sort' => 'nama_barang', 'direction' => ($sort === 'nama_barang' && $direction === 'asc') ? 'desc' : 'asc'])) }}"
+                                       class="flex items-center space-x-1 hover:underline">
+                                        <span>Nama Barang</span>
+                                        <svg class="w-3 h-3 {{ $sort === 'nama_barang' ? 'text-gray-800' : 'text-gray-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="{{ $sort === 'nama_barang' && $direction === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" />
                                         </svg>
                                     </a>
-                                    <button type="button"
-                                        onclick="openDeleteModal('{{ route('barang.destroy', $barang->id) }}', '{{ $barang->nama_barang }}')"
-                                        class="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full transition-colors duration-150"
-                                        title="Hapus barang {{ $barang->nama_barang }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <a href="{{ route('barang.index', array_merge(request()->query(), ['sort' => 'kode_barang', 'direction' => ($sort === 'kode_barang' && $direction === 'asc') ? 'desc' : 'asc'])) }}"
+                                       class="flex items-center space-x-1 hover:underline">
+                                        <span>Kode Barang</span>
+                                        <svg class="w-3 h-3 {{ $sort === 'kode_barang' ? 'text-gray-800' : 'text-gray-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                  d="{{ $sort === 'kode_barang' && $direction === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" />
                                         </svg>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500">
-                                <div class="flex flex-col items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                    </a>
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <a href="{{ route('barang.index', array_merge(request()->query(), ['sort' => 'jumlah', 'direction' => ($sort === 'jumlah' && $direction === 'asc') ? 'desc' : 'asc'])) }}"
+                                       class="flex items-center space-x-1 hover:underline">
+                                        <span>Jumlah</span>
+                                        <svg class="w-3 h-3 {{ $sort === 'jumlah' ? 'text-gray-800' : 'text-gray-400' }}" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="{{ $sort === 'jumlah' && $direction === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7' }}" />
+                                        </svg>
+                                    </a>
+                                </th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse ($barangs as $barang)
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex items-center space-x-3">
+                                        <input type="checkbox" name="ids[]" value="{{ $barang->id }}"
+                                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded row-checkbox">
+                                        <span>{{ $loop->iteration }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $barang->nama_barang }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ $barang->kode_barang }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{{ $barang->jumlah }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <a href="{{ route('barang.edit', $barang->id) }}"
+                                           class="inline-flex items-center justify-center w-8 h-8 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-full transition-colors duration-150"
+                                           title="Edit barang">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </a>
+                                        <button type="button"
+                                                onclick="openDeleteModal('{{ route('barang.destroy', $barang->id) }}', '{{ $barang->nama_barang }}')"
+                                                class="inline-flex items-center justify-center w-8 h-8 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-full transition-colors duration-150"
+                                                title="Hapus barang {{ $barang->nama_barang }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                        </svg>
+                                        <p class="text-gray-600 font-medium">Belum ada data barang</p>
+                                        <p class="text-gray-400 text-xs mt-1">Klik "Tambah Barang" untuk menambahkan data pertama</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Card/grid for small screens -->
+                <div class="sm:hidden flex flex-col items-center gap-4 w-full">
+                    @forelse ($barangs as $barang)
+                    <div class="bg-white rounded-lg shadow p-4 w-full max-w-[340px] flex flex-col gap-2 mx-auto">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" name="ids[]" value="{{ $barang->id }}"
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded row-checkbox">
+                                <span class="text-xs font-semibold text-gray-500">No: {{ $loop->iteration }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('barang.edit', $barang->id) }}"
+                                   class="text-blue-600 hover:text-blue-800" title="Edit barang">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
-                                    <p class="text-gray-600 font-medium">Belum ada data barang</p>
-                                    <p class="text-gray-400 text-xs mt-1">Klik "Tambah Barang" untuk menambahkan data pertama</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                </a>
+                                <button type="button"
+                                        onclick="openDeleteModal('{{ route('barang.destroy', $barang->id) }}', '{{ $barang->nama_barang }}')"
+                                        class="text-red-600 hover:text-red-800" title="Hapus barang">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">{{ $barang->nama_barang }}</div>
+                            <div class="text-xs text-gray-500">Kode: {{ $barang->kode_barang }}</div>
+                            <div class="text-xs text-gray-500">Jumlah: {{ $barang->jumlah }}</div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="bg-white rounded-lg shadow p-6 text-center text-gray-500 w-full max-w-[340px] mx-auto">
+                        Belum ada data barang
+                    </div>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>
@@ -230,15 +257,13 @@
                 <form id="bulkDeleteForm" action="{{ route('barang.bulk-delete') }}" method="POST">
                     @csrf
                     @method('DELETE')
-                    <form id="bulkDeleteForm" action="{{ route('barang.bulk-delete') }}" method="POST">
-
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-                            Hapus
-                        </button>
-                    </form>
-                    <button type="button" onclick="closeBulkDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Batal
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Hapus
                     </button>
+                </form>
+                <button type="button" onclick="closeBulkDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Batal
+                </button>
             </div>
         </div>
     </div>
@@ -250,29 +275,24 @@
         let searchTimeout;
 
         searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout); // Hapus timeout sebelumnya
+            clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const query = searchInput.value.trim();
                 const url = new URL(window.location.href);
 
                 if (query) {
-                    url.searchParams.set('q', query); // Tambahkan parameter pencarian
+                    url.searchParams.set('q', query);
                 } else {
-                    url.searchParams.delete('q'); // Hapus parameter jika kosong
+                    url.searchParams.delete('q');
                 }
 
-                // Perbarui URL tanpa memuat ulang halaman
                 history.replaceState(null, '', url.toString());
 
-                // Kirim permintaan pencarian menggunakan AJAX
                 fetch(url.toString(), {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Perbarui tabel hasil pencarian
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const newTable = doc.querySelector('table');
@@ -283,36 +303,27 @@
                     }
                 })
                 .catch(error => console.error('Error:', error));
-            }, 500); // Tunggu 500ms sebelum mengirim permintaan
+            }, 500);
         });
     });
-</script>
 
-<script>
     document.addEventListener('DOMContentLoaded', function() {
         const selectAll = document.getElementById('select-all');
         const rowCheckboxes = document.querySelectorAll('.row-checkbox');
         const bulkActions = document.getElementById('bulk-actions');
         const countSpan = document.getElementById('count');
-        const bulkIdsInput = document.getElementById('bulk-ids');
 
-        // Function to update UI based on selected checkboxes
         function updateBulkActions() {
             const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
             const hasSelected = checkedBoxes.length > 0;
 
-            // Show/hide bulk actions bar
             if (hasSelected) {
                 bulkActions.classList.remove('hidden');
                 countSpan.textContent = checkedBoxes.length;
-                // Update hidden input with selected IDs
-                const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
-                bulkIdsInput.value = selectedIds.join(',');
             } else {
                 bulkActions.classList.add('hidden');
             }
 
-            // Update select all checkbox state
             if (checkedBoxes.length === rowCheckboxes.length && rowCheckboxes.length > 0) {
                 selectAll.checked = true;
                 selectAll.indeterminate = false;
@@ -325,39 +336,27 @@
             }
         }
 
-        // Select all functionality
         selectAll.addEventListener('change', function() {
-            rowCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
+            rowCheckboxes.forEach(checkbox => checkbox.checked = this.checked);
             updateBulkActions();
         });
 
-        // Individual checkbox functionality
-        rowCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateBulkActions);
-        });
+        rowCheckboxes.forEach(checkbox => checkbox.addEventListener('change', updateBulkActions));
 
-        // Initial state
         updateBulkActions();
     });
 
-    // Delete modal functions
-        // Ubah: jangan submit langsung, pakai fetch
     function openDeleteModal(formAction, itemName) {
         const form = document.getElementById('deleteForm');
         const deleteText = document.getElementById('deleteItemText');
         
         deleteText.textContent = `Yakin ingin menghapus data barang "${itemName}" dari daftar?`;
-        
-        // Simpan action, tapi jangan submit dulu
         form.setAttribute('action', formAction);
         
         document.getElementById('deleteModal').classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
     }
 
-    // Submit form dengan fetch
     document.getElementById('deleteForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -375,12 +374,8 @@
         .then(response => response.json())
         .then(data => {
             closeDeleteModal();
-            
-            if (data.success) {
-                location.reload(); // Berhasil → reload
-            } else {
-                showErrorMessage(data.message); // Gagal → tampilkan modal error
-            }
+            if (data.success) location.reload();
+            else showErrorMessage(data.message);
         })
         .catch(error => {
             closeDeleteModal();
@@ -393,24 +388,18 @@
         document.body.classList.remove('overflow-hidden');
     }
 
-    // Bulk delete modal functions
     function openBulkDeleteModal() {
         const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
         const selectedCount = checkedBoxes.length;
         const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
 
-        if (selectedCount === 0) {
-            showToast('Tidak ada item yang dipilih', 'error');
-            return;
-        }
+        if (selectedCount === 0) return;
 
         document.getElementById('selectedItemsCount').textContent = selectedCount;
 
-        // Bersihkan input lama
         const form = document.getElementById('bulkDeleteForm');
         form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
 
-        // Tambahkan input tersembunyi baru untuk setiap ID
         selectedIds.forEach(id => {
             const input = document.createElement('input');
             input.type = 'hidden';
@@ -428,31 +417,22 @@
         document.body.classList.remove('overflow-hidden');
     }
 
-    // Close modals when clicking outside
     document.getElementById('deleteModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeDeleteModal();
-        }
+        if (e.target === this) closeDeleteModal();
     });
 
     document.getElementById('bulkDeleteModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeBulkDeleteModal();
+        if (e.target === this) closeBulkDeleteModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (!document.getElementById('deleteModal').classList.contains('hidden')) closeDeleteModal();
+            if (!document.getElementById('bulkDeleteModal').classList.contains('hidden')) closeBulkDeleteModal();
         }
     });
 
-    // Close modals with ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            if (!document.getElementById('deleteModal').classList.contains('hidden')) {
-                closeDeleteModal();
-            }
-            if (!document.getElementById('bulkDeleteModal').classList.contains('hidden')) {
-                closeBulkDeleteModal();
-            }
-        }
-    });
-        function showErrorMessage(message) {
+    function showErrorMessage(message) {
         const modal = document.createElement('div');
         modal.innerHTML = `
             <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -479,8 +459,7 @@
             </div>
         `;
 
-        const newModal = modal.firstElementChild;
-        document.body.appendChild(newModal);
+        document.body.appendChild(modal.firstElementChild);
         document.body.classList.add('overflow-hidden');
     }
 
