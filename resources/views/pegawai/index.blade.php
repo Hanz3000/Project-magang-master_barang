@@ -3,6 +3,12 @@
 @section('title', 'Master Pegawai - Sistem Master Data')
 
 @section('content')
+<style>
+/* Hilangkan scroll horizontal halaman */
+html, body {
+    overflow-x: hidden;
+}
+</style>
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -52,7 +58,7 @@
                 <div class="flex items-center text-green-700 bg-green-100 border border-green-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
+                    </div>
                     <span>{{ session('deleted') }}</span>
                 </div>
                 @elseif(session('error'))

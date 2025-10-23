@@ -3,6 +3,12 @@
 @section('title', 'Master Barang - Sistem Master Data')
 
 @section('content')
+<style>
+/* Hilangkan scroll horizontal halaman */
+html, body {
+    overflow-x: hidden;
+}
+</style>
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

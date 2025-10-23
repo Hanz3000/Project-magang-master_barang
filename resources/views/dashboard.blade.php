@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+/* Hilangkan scroll horizontal halaman */
+html, body {
+    overflow-x: hidden;
+}
+</style>
 <div class="p-4 sm:p-6 overflow-x-hidden">
     <div class="flex flex-col gap-4 mb-6 items-center">
         <h1 class="text-2xl font-bold text-gray-800 text-center break-words w-full max-w-md">
